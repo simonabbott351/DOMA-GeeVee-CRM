@@ -1,0 +1,12 @@
+{
+  "name": "doma-geevee-crm",
+  "version": "2.1.0",
+  "private": true,
+  "description": "DOMA V2 with GeeVee: AI-first real estate CRM prototype (Collings Real Estate)",
+  "scripts": {
+    "check": "node tools/check.js",
+    "bundle": "node tools/bundle.js",
+    "serve": "npx --yes live-server@1.2.2 . --port=5500 --no-browser",
+    "test": "node tests/crawl.js index.html"
+  }
+}

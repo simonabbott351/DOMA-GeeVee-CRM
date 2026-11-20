@@ -1,0 +1,11 @@
+/* Contacts, inspections and communications pages */
+.cwct-prof{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:16px;align-items:start}
+.cwct-sum{display:flex;flex-direction:column;gap:14px;min-width:0}
+.cwct-sum .card-head{margin-bottom:10px}
+.cwct-sum .cw-kv{grid-template-columns:1fr}
+.cw-tabs{margin-bottom:2px}
+.cwcm-thread{border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.cwcm-preview{border:1px solid var(--line);border-radius:12px;background:#fafcfc;padding:14px;font-size:12px;white-space:pre-wrap;line-height:1.6}
+.cwcm-checks{display:flex;flex-direction:column;gap:6px;font-size:12px}
+.cwcm-checks div{display:flex;gap:8px;align-items:flex-start}
+@media (max-width:1400px){.cwct-prof{grid-template-columns:minmax(0,1fr)}.cwct-sum{order:-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}}

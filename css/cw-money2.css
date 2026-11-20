@@ -1,0 +1,24 @@
+/* Money layer 2: auctions, vendor page, driving mode, keyboard */
+.cw-au-paddle{width:34px;height:34px;border-radius:9px;background:#0d3034;color:#7ce0e3;display:inline-grid;place-items:center;font-weight:900;font-size:14px;flex-shrink:0;margin-right:6px}
+.cw-au-order .cw-row{gap:4px 10px}
+.cw-vp-stats .stat .value{font-size:24px}
+.cw-vp-report summary{cursor:pointer;font-size:12.5px;font-weight:750;color:#0d3034;padding:8px 0}
+.cw-vp-report .cw-gr-pre{margin-top:6px}
+.cw-kb-ask{border:1px solid #bfe0e2;background:#eef7f7;border-radius:10px;margin-bottom:10px}
+.cw-dr{max-width:720px;margin:0 auto;padding:10px 0 40px}
+.cw-dr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.cw-dr-exit{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;font:inherit;font-weight:750;display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+.cw-dr-next{background:#0d3034;color:#fff;border-radius:18px;padding:22px 24px;margin-bottom:16px}
+.cw-dr-when{font-size:14px;color:#7ce0e3;font-weight:800;letter-spacing:.3px}
+.cw-dr-next h1{font-size:30px;line-height:1.15;margin:6px 0 8px;color:#fff}
+.cw-dr-where{font-size:17px;color:#cfe7e9}
+.cw-dr-who{font-size:15px;color:#9fd5d8;margin-top:6px}
+.cw-dr-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cw-dr-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:120px;border:2px solid #cfe7e9;background:#fff;border-radius:18px;font:inherit;font-size:18px;font-weight:800;color:#0d3034;text-decoration:none;cursor:pointer}
+.cw-dr-btn:hover{border-color:#0e8790;background:#f3fbfb}
+.cw-dr-btn .icon{color:#0e8790;width:34px;height:34px}
+.cw-dr-list{margin-top:18px}
+.cw-dr-row{display:grid;grid-template-columns:70px 1fr;gap:4px 12px;padding:12px 0;border-top:1px solid #e3eaec;font-size:15px}
+.cw-dr-row b{color:#0d3034}
+.cw-dr-row small{grid-column:2;color:#6b7f87;font-size:13px}
+@media (max-width:600px){.cw-dr-grid{grid-template-columns:1fr 1fr}.cw-dr-btn{min-height:110px;font-size:17px}.cw-dr-next h1{font-size:26px}}

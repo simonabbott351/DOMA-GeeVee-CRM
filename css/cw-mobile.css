@@ -1,0 +1,99 @@
+/* Phone layout for the CRM pages (390 x 844 and similar). Desktop is untouched: everything here sits inside media queries. */
+@media (max-width:800px){
+ .cw-wrap,.cw-wrap.wide{display:flex;flex-direction:column;gap:14px}
+ .cw-main{width:100%;max-width:100%}
+ .cw-page{padding-bottom:0;overflow-x:clip}
+ .shell .main-inner{padding-bottom:calc(150px + env(safe-area-inset-bottom))}
+ .cw-crumbs{margin:-4px 0 10px}
+ .cw-head h1{font-size:22px;overflow-wrap:anywhere}
+ .cw-head .page-actions{width:100%}
+ .cw-head .page-actions .btn{flex:1 1 auto}
+ /* tab strips and sub navigation scroll sideways instead of pushing the page wider */
+ .cw-subnav{margin:0 0 14px;width:100%;max-width:100%;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+ .cw-subnav::-webkit-scrollbar{display:none}
+ .cw-subnav button{padding:9px 10px;flex-shrink:0}
+ .tabs,.cw-tabs,.cw-cluster{width:100%;max-width:100%;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
+ .tabs::-webkit-scrollbar{display:none}
+ .tabs button{flex-shrink:0}
+ .cw-cluster{margin:-6px 0 14px}
+ .cw-pills{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;padding-bottom:2px}
+ .cw-pills::-webkit-scrollbar{display:none}
+ .cw-pill{flex-shrink:0}
+ /* toolbars wrap; search and selects take the full width */
+ .toolbar{flex-wrap:wrap;gap:8px}
+ .toolbar .search,.toolbar .field,.toolbar .cw-pills{flex:1 1 100%;min-width:0;max-width:100%}
+ .toolbar select.field{flex:1 1 45%}
+ .toolbar .btn{flex:1 1 auto}
+ .toolbar h2{flex:1 1 100%;margin:0}
+ .cw-row.between>.btn,.cw-prop-actions .btn{flex:1 1 auto}
+ /* stats: two per row */
+ .cw-stats.grid-2,.cw-stats.grid-3,.cw-stats.grid-4,.cw-stats.grid-5{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .cw-stats .stat{padding:12px 11px}
+ .cw-stats .stat .value{font-size:20px}
+ .cw-stats .stat .label{font-size:10.5px}
+ /* tables keep their own sideways scroll; the page itself never scrolls sideways */
+ .table-wrap,.cw-table{max-width:100%}
+ .cw-tfoot{flex-direction:column;align-items:flex-start;margin-top:0}
+ .cw-tfoot-r{flex-wrap:wrap}
+ .cw-bulk .btn{flex:1 1 auto}
+ /* forms: one column */
+ .cw-grid,.cw-two,.cw-three,.cw-side,.cw-kv{grid-template-columns:minmax(0,1fr)}
+ .cw-fs{padding:12px 12px 14px}
+ .cw-radios{gap:10px}
+ .cw-vtabs{flex-direction:row;overflow-x:auto;scrollbar-width:none;padding:4px;gap:4px}
+ .cw-vtabs::-webkit-scrollbar{display:none}
+ .cw-vtabs button{flex-shrink:0;white-space:nowrap;padding:8px 10px;gap:6px}
+ /* GeeVee panel: a slim bar above the content, closed until tapped (see cw-p-a11y.js) */
+ .cw-ai{position:static;order:-1;border-radius:12px}
+ .cw-ai summary{padding:11px 12px 10px}
+ .cw-ai-list{max-height:none;padding:0 10px 4px}
+ .cw-ai-acts .btn,.cw-ai-foot .btn{min-height:40px}
+ /* dialogs: full screen, footer always in reach */
+ .overlay{padding:0;align-items:stretch;justify-content:stretch}
+ .dialog,.dialog.large,.dialog.call{width:100%;max-width:none;height:100%;max-height:none;border-radius:0;box-shadow:none}
+ .dialog-head{padding:14px 16px;position:sticky;top:0;background:#fff;z-index:1}
+ .dialog-head h2{font-size:18px}
+ .dialog-content{padding:14px 16px;flex:1 1 auto;overflow:auto;-webkit-overflow-scrolling:touch}
+ .dialog-foot{position:sticky;bottom:0;background:#fbfcfc;padding:10px 12px calc(10px + env(safe-area-inset-bottom));flex-wrap:wrap;justify-content:stretch}
+ .dialog-foot .btn{flex:1 1 auto;min-height:44px}
+ /* More tools: one column */
+ .cw-more-grid,.cw-more-quick-row{grid-template-columns:minmax(0,1fr)}
+ .cw-more-search{padding:4px 12px}
+ .cw-more-count{font-size:10px}
+ /* cards, galleries, calendars, kanban */
+ .cw-cards,.cw-dir{grid-template-columns:minmax(0,1fr)}
+ .cw-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .cw-kanban .pipe-col{flex-basis:78vw}
+ .cw-cal-h{font-size:9px;padding:6px 2px}
+ .cw-cal-d{min-height:58px;padding:4px 3px;gap:2px}
+ .cw-cal-e{font-size:9px;padding:3px 4px}
+ .cw-cal-add{opacity:1}
+ .cw-funnel div{grid-template-columns:96px minmax(0,1fr) 36px;gap:8px}
+ .cw-today-stages{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .cw-today-stages span{white-space:normal}
+ .cw-map{height:300px}
+ .cw-chat{max-height:50vh}
+ .cw-msg{max-width:92%}
+ .cw-public-body{padding:16px 14px}
+ .cw-auth{padding:22px 18px;margin:12px auto}
+ .cw-prop-head{flex-direction:column}
+ .cw-thumb.big{height:130px}
+ .cw-sign{height:120px}
+ .cw-steps .step{font-size:11px}
+ .cw-bars{height:110px}
+ .cw-empty{padding:22px 10px}
+ .cw-mini{min-height:36px}
+ .cw-page .table-btn{min-height:28px;padding:4px 0}
+ .cw-kv{gap:10px 14px}
+ .cw-switch{align-items:flex-start}
+ .cw-search-page{padding:10px}
+ .cw-ai-item{padding:10px 11px}
+}
+@media (max-width:520px){
+ .cw-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .cw-cal-d{min-height:52px}
+ .cw-cal-d .n{font-size:10px}
+ .cw-stats.grid-5{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .cw-head h1{font-size:21px}
+ .cw-crumbs{font-size:10.5px}
+}

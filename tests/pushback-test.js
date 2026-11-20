@@ -1,0 +1,37 @@
+// Push back an hour / later today / tomorrow, then bring it back and see the badge.
+const puppeteer = require('puppeteer-core');
+const path = require('path');
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const [file, dir] = process.argv.slice(2);
+(async () => {
+  const browser = await puppeteer.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: 'new', args: ['--mute-audio'] });
+  const page = await browser.newPage(); await page.setViewport({ width: 1500, height: 950 });
+  const errs = []; page.on('pageerror', e => errs.push('pageerror: ' + e.message)); page.on('console', m => { if (m.type() === 'error' && !/favicon/.test(m.text())) errs.push(m.text().slice(0, 160)); });
+  await page.evaluateOnNewDocument(() => { try { Object.defineProperty(window, 'speechSynthesis', { value: { speak() {}, cancel() {}, pause() {}, resume() {}, getVoices() { return []; }, paused: false } }); } catch (e) {} window.open = () => null; });
+  await page.goto('file:///' + path.resolve(file).replace(/\\/g, '/'), { waitUntil: 'load', timeout: 120000 }); await wait(1200);
+  await page.evaluate(() => localStorage.clear()); await page.reload({ waitUntil: 'load' }); await wait(1200);
+  const click = async s => { const ok = await page.evaluate(s => { const b = document.querySelector(s); if (b) { b.click(); return true; } return false; }, s); await wait(400); return ok; };
+  await page.evaluate(() => { location.hash = '/demo'; }); await wait(300);
+  await click('[data-action="cwDmReset"]'); await click('[data-action="cwDmResetYes"]'); await wait(1500); await click('[data-action="cwDmOff"]');
+  await page.evaluate(() => document.querySelector('[data-action="route"][data-id="today"]').click()); await wait(600);
+  const cards = () => page.evaluate(() => [...document.querySelectorAll('.gv-day-items .gv-compact-item')].map(c => ({ key: c.querySelector('.gv-compact-open')?.dataset.id, title: c.querySelector('.gv-compact-open strong')?.innerText, rows: c.querySelectorAll('.cw-pb-row').length, back: !!c.querySelector('.cw-pb-back') })));
+  const before = await cards();
+  const out = { before: before.slice(0, 3), rowsOnEveryCard: before.every(c => c.rows === 1) };
+  const first = before[0].key;
+  await page.evaluate(k => document.querySelector(`[data-action="cwPbSnooze"][data-id="${k}|hour"]`)?.click(), first); await wait(600);
+  const after = await cards();
+  out.afterHour = { gone: !after.some(c => c.key === first), newTop: after[0]?.title, toast: await page.evaluate(() => document.getElementById('toast')?.innerText.slice(0, 60)), aside: await page.evaluate(() => document.querySelector('.cw-pb-aside')?.innerText.replace(/\s+/g, ' ').slice(0, 90)) };
+  if (dir) await page.screenshot({ path: dir + '/pushback.png' });
+  const second = after[0].key;
+  await page.evaluate(k => document.querySelector(`[data-action="cwPbSnooze"][data-id="${k}|later"]`)?.click(), second); await wait(500);
+  const third = (await cards())[0].key;
+  await page.evaluate(k => document.querySelector(`[data-action="cwPbSnooze"][data-id="${k}|tomorrow"]`)?.click(), third); await wait(500);
+  out.threeSnoozed = await page.evaluate(() => document.querySelector('.cw-pb-aside')?.innerText.replace(/\s+/g, ' ').slice(0, 160));
+  await click('.cw-pb-aside [data-action="cwPbNow"][data-id="*"]'); await wait(600);
+  const back = await cards();
+  out.broughtBack = { topThree: back.slice(0, 3).map(c => c.title), badges: back.filter(c => c.back).length, firstIsBack: back[0].key === first || back.slice(0, 3).some(c => c.key === first) };
+  if (dir) await page.screenshot({ path: dir + '/pushback-back.png' });
+  out.errs = errs;
+  console.log(JSON.stringify(out, null, 1));
+  await browser.close();
+})().catch(e => { console.error(e); process.exit(1); });

@@ -1,0 +1,54 @@
+/* Accessibility: WCAG 2.2 AA contrast for small secondary text, visible focus, screen reader text. The look stays:
+   each grey is the same hue one or two steps darker so 10px to 12px text reaches 4.5:1 on every background used. */
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.table-wrap,.btn,.table-btn{position:relative}
+/* secondary text */
+.muted,.small.muted,.tiny.muted{color:#51616b}
+.hint,.foot,.sub,.pipe-card .sub,.meta,.cw-pcard .meta,.thread-line,.gv-compact-excerpt{color:#566871}
+.stat .label,.table th,.cw-sort,.cw-kv dt,.cw-cal-h,.cw-crumbs,.cw-tfoot,.cw-tfoot .tiny,.cw-tfoot .muted{color:#51616b}
+.page-header p,.cw-head p,.cw-empty,.cw-empty p,.steps .step,.cw-col-empty,.cw-cal-d.out,.cw-cal-d.out .n,.cw-no{color:#5a6b74}
+.eyebrow,div.eyebrow,.page-header .eyebrow,.dialog-head .eyebrow{color:#3f6a73}
+span.gv-eyebrow{color:#076b73}
+div.sub,.list-main .sub,.pipe-card .sub,div.foot,.stat .foot,div.meta,.cw-pcard .meta,.bubble .meta,.thread-top time,span.gv-day-queue-note,div.gvc-quiet-note,.gv-day-welcome p,.stream-diary-row span,.stream-diary-info span,.stream-diary-head p,.stream-diary-foot span,.gv-day-totals span,.gv-day-totals small,.gv-offer-terms span,.gvc-offer-terms span,.cw-today-dash .cw-today-stages span{color:#566871}
+.thread-list>div[style]{color:#51616b!important}
+span.cw-jn-step,span.cw-jn-step i,div.gv-queue-bottom,.detail-metrics div span{color:#51616b}
+.cw-j3-buyers div.sub,.cw-j3-offers div.sub,.cw-j3-past span small,.cw-jn-item span small,.cw-jn-mini span small,.gv-activity-details summary small,.gv-activity-details summary span{color:#566871}
+div.number-circle{color:#0b6e76}
+#content summary small{color:#566871}
+.cw-page h1[tabindex]:focus{outline:none!important}
+:root :focus-visible{outline-color:#0b6e76!important}
+.cw-more-search .cw-more-count,.cw-more-card .cw-more-card-head small{color:#566871}
+.cw-route{color:#51616b;background:#e9eff1}
+.cw-ai summary small,.cw-ai-foot span,.cw-switch small,.cw-tl small,.cw-who small,.cw-msg small,.cw-search-page small,.cw-more-card-head small,.cw-more-count,.cw-dir-list code,.cw-pill span,.cw-gallery figure figcaption,.cw-bars span,.cw-pcard .meta,.cw-vtabs button,.cw-feature{color:#5a6b74}
+.cw-ai-item p{color:#4b5f69}
+.cw-thumb{color:#3f6a73}
+.cw-more-chip.old{color:#4b5f69}
+.cw-more-quick-btn small{color:#c9e3e5}
+.cw-public-bar{color:#d7e8ea}
+/* navigation text */
+.tabs button,.cw-subnav button{color:#566871}
+.cw-subnav button:hover{color:#0b6e76}
+.cw-crumbs button{color:#0b6e76}
+.cw-crumbs b{color:#2c4450}
+.side-nav .caps,.side-nav .caps.muted,.caps.muted{color:#5a6b74!important}
+.side-bottom .muted,.side-bottom .muted.tiny{color:#566871}
+.top-breadcrumb .muted{color:#5e6f78}
+.cw-dir-list button:hover b,.table-btn{color:#0b6e76}
+/* small filled targets */
+.cw-pin{background:#0b7079;min-height:24px;min-width:24px}
+.cw-pin.sold{background:#2f63ad}
+.cw-pin.off{background:#6a4a9b}
+.cw-cal-e{min-height:24px;padding:4px 5px;line-height:1.3}
+.cw-cal-e.k-Appraisal{color:#8a5406}
+.cw-cal-e.k-Open{color:#1b6a43}
+.cw-cal-e.k-Auction{color:#654396}
+.cw-cal-e{color:#0a5f66}
+.cw-cal-d{position:relative}
+.cw-cal-d .n{display:block;min-height:24px;line-height:24px}
+.cw-cal-add{position:absolute;top:3px;right:3px;width:24px;height:24px;border:0;border-radius:6px;background:#e4f4f5;color:#0b6e76;font-weight:900;font-size:14px;line-height:1;display:grid;place-items:center;opacity:0;padding:0}
+.cw-cal-d:hover .cw-cal-add,.cw-cal-add:focus-visible{opacity:1}
+.cw-count{color:#2f4350}
+/* focus */
+.cw-page button:focus-visible,.cw-page [tabindex]:focus-visible,.cw-page input:focus-visible,.cw-page select:focus-visible,.cw-page textarea:focus-visible,.cw-page a:focus-visible,.dialog button:focus-visible,.dialog input:focus-visible,.dialog select:focus-visible,.dialog textarea:focus-visible,.dialog [tabindex]:focus-visible,.cw-ai summary:focus-visible{outline:3px solid #0b6e76;outline-offset:2px}
+.cw-page .table-wrap:focus-visible,.cw-page .pipeline-cols:focus-visible,.cw-page .cw-chat:focus-visible,.cw-ai-list:focus-visible{outline:3px solid #0b6e76;outline-offset:-3px}
+.dialog:focus{outline:none}

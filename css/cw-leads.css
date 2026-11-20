@@ -1,0 +1,12 @@
+/* Leads & prospecting pages */
+.cw-ld-dot{display:inline-block;width:12px;height:12px;border-radius:50%;border:1px solid #0002}
+.pipe-card .field.cw-mini{max-width:100%;margin-top:3px}
+.cw-ps-list{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow:auto}
+.cw-ps-pick{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff;font-size:12px}
+.cw-ps-pick.on{border-color:#83c5ca;background:#f3fbfb}
+.cw-ps-pick input{width:16px;height:16px;accent-color:var(--teal)}
+.cw-ps-pick b{display:block}
+.cw-ps-pick small{color:#71818b}
+.cw-ps-call{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff}
+.cw-ps-live{display:inline-block;width:8px;height:8px;border-radius:50%;background:#cb5046;margin-right:6px;animation:cwPsPulse 1.2s infinite}
+@keyframes cwPsPulse{50%{opacity:.3}}

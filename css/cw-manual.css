@@ -1,0 +1,13 @@
+/* Manual path */
+.cw-jn-step{border:0;cursor:pointer;font:inherit;color:#44565f}
+.cw-jn-step i{color:#44565f}
+.cw-jn-step:hover{background:#dbe9eb;color:#0b6e76}
+.cw-jn-step.done:hover{background:#cbe9eb}
+.cw-mn-new{min-height:36px;padding:8px 14px;margin-right:4px}
+.cw-mn-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cw-mn-choice{display:flex;gap:12px;align-items:center;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:13px 14px;min-width:0}
+.cw-mn-choice:hover{border-color:#83c5ca;background:#f5fcfc}
+.cw-mn-choice .icon{color:#0e8790;flex-shrink:0}
+.cw-mn-choice b{display:block;font-size:13px}
+.cw-mn-choice small{display:block;font-size:11px;color:#6b7f87;margin-top:2px}
+@media (max-width:800px){.cw-mn-grid{grid-template-columns:minmax(0,1fr)}.cw-mn-new{padding:8px 10px}}

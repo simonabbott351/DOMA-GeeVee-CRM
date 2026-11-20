@@ -1,0 +1,18 @@
+/* Design pass 2: list pages */
+.cw-head p{max-width:600px}
+.cw-head .page-actions{max-width:48%;justify-content:flex-end;align-content:flex-start}
+.cw-d2-cluster summary.btn{background:#fff;border-color:#dce7ea;color:#0d3034;font-weight:800}
+.cw-d2-caret{color:#7a8d95;margin-left:2px}
+.cw-d2-cluster .cw-more-menu-list{min-width:220px;max-height:60vh;overflow:auto}
+.cw-subnav{margin-bottom:16px}
+.cw-page .cw-table td{padding:10px 12px;font-size:12px;line-height:1.4}
+.cw-page .cw-table th{padding:9px 12px}
+.cw-page .cw-table td .tag{white-space:nowrap}
+.cw-page .cw-table td.cw-d2-nw{white-space:nowrap}
+.cw-page .cw-table td .avatar{width:28px;height:28px;font-size:10px}
+.cw-page .cw-table td .table-btn{font-size:12px}
+.cw-page .cw-table .cw-more-menu summary.btn{min-height:30px;padding:5px 9px}
+.cw-page .toolbar{gap:8px}
+.cw-page .toolbar .field,.cw-page .toolbar select.field{min-height:38px;font-size:12.5px}
+.cw-cal-e{font-size:10.5px;padding:3px 6px}
+@media (max-width:860px){.cw-head .page-actions{max-width:none}}

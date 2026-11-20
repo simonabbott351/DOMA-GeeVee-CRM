@@ -1,0 +1,9 @@
+/* Growth layer */
+.cw-gr-why{margin:6px 0 0;padding-left:16px;font-size:11px;color:#4b6470}
+.cw-gr-why li{margin:1px 0}
+.cw-gr-batch{display:flex;flex-direction:column;gap:8px;margin:0 0 14px}
+.cw-gr-batch-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border:1px solid #cfe7e9;background:#f3fbfb;border-radius:12px;padding:11px 14px}
+.cw-gr-batch-row b{font-size:13px;color:#17343b}
+.cw-gr-batch-row small{display:block;font-size:11px;color:#6b7f87;margin-top:2px}
+.cw-gr-aside{margin-top:12px}
+.cw-gr-pre{white-space:pre-wrap;font:12.5px/1.55 Inter,system-ui,sans-serif;background:#f7f9fa;border:1px solid var(--line);border-radius:10px;padding:14px;margin:0 0 12px;color:#1c2d35}

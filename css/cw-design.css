@@ -1,0 +1,75 @@
+/* Design pass (18 Nov 2026): less chrome, clear hierarchy, property art, a slimmer Ask bar. Prefix cw-ds. */
+/* 1. Chrome diet */
+.page-header:not(.cw-head) .eyebrow{display:none}
+.cw-route{display:none}
+.gv-day-welcome .gv-eyebrow{display:none}
+.gv-small-demo{background:none;border:0;color:#56696f;padding:4px 0;font-weight:700;letter-spacing:.2px}
+.topflag{display:none}
+.searchbar{flex:1;max-width:520px;min-width:180px}
+.cw-crumbs{margin:-8px 0 14px}
+.cw-ds-week{display:flex;flex-direction:column;gap:5px;margin:14px 12px 0;padding:11px 13px 10px;border:1px solid #e3eaec;border-radius:12px;background:#fbfcfc;text-align:left;cursor:pointer;font:inherit;color:inherit;width:calc(100% - 24px)}
+.cw-ds-week:hover{border-color:#9fd0d4;background:#f5fbfb}
+.cw-ds-week .caps{font-size:9.5px;margin-bottom:3px}
+.cw-ds-week div{display:flex;align-items:baseline;gap:8px;min-width:0}
+.cw-ds-week b{font-size:16px;line-height:1.1;color:#0d3034;font-weight:850;letter-spacing:-.3px;min-width:18px;text-align:right}
+.cw-ds-week small{font-size:11px;color:#5f737b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cw-ds-week em{font-style:normal;font-size:10.5px;color:#0b6e76;font-weight:750;margin-top:4px;border-top:1px solid #e8eef0;padding-top:7px}
+.cw-head .page-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
+.cw-head .page-actions .cw-pills{display:inline-flex}
+.side-tip{display:none}
+.cw-ds-tabrow{display:flex;align-items:center;gap:2px;background:#EDF3F4;border-radius:10px;padding:4px;margin-bottom:16px}
+.cw-ds-tabrow .cw-tabs.cw-ds-tabs{flex:1;min-width:0;flex-wrap:wrap;width:auto;overflow:visible;align-items:center;background:none;padding:0;margin:0;border-radius:0}
+.cw-ds-tabrow .cw-more-menu summary.btn{min-height:32px;font-size:12px;border:0;background:transparent;color:#4b6470;padding:6px 10px;box-shadow:none}
+.cw-ds-tabrow .cw-more-menu summary.btn:hover{background:#fff}
+.cw-head .page-actions .cw-pills{flex-shrink:0;flex-wrap:nowrap}
+/* 2. Hierarchy: one elevated thing per page */
+.cw-page .card,.cw-page .cw-card{box-shadow:none}
+.cw-ai{background:#eef7f7;border-color:#cfe4e6;box-shadow:none}
+.cw-ai-item{border-color:#dbe9ea}
+.gv-day-items .gv-compact-item:not(.expanded){box-shadow:none!important}
+.gv-day-items .gv-compact-item.expanded{border:1px solid #bfe0e2!important;border-top:3px solid var(--teal)!important;box-shadow:0 16px 40px rgba(8,103,111,.13)!important}
+.gv-day-items .gv-compact-item.expanded .gv-compact-header{padding-top:12px}
+.gv-day-aside .stream-diary{box-shadow:none}
+.cw-ds-hero{display:grid;grid-template-columns:196px minmax(0,1fr);grid-template-rows:auto auto;gap:8px 18px;align-items:center;background:#fff;border:1px solid #dfe8ea;border-radius:16px;padding:14px 16px 14px 14px;margin-bottom:14px;box-shadow:0 10px 30px rgba(19,47,58,.07)}
+.cw-ds-hero>div:nth-child(2){grid-column:2;grid-row:1;min-width:0}
+.cw-ds-hero .cw-prop-actions{grid-column:2;grid-row:2}
+.cw-ds-hero h1{letter-spacing:-.4px}
+.cw-ds-art{grid-column:1;grid-row:1/3;width:196px;min-height:132px;align-self:stretch;border-radius:12px;overflow:hidden;position:relative;background:#e6f0f1}
+.cw-ds-art svg{display:block;width:100%;height:100%}
+.cw-ds-art .cw-ds-cap{position:absolute;left:8px;bottom:7px;font-size:10px;font-weight:800;color:#fff;background:rgba(13,48,52,.62);border-radius:6px;padding:3px 7px;letter-spacing:.2px}
+.cw-ds-hero+.cw-tabs{margin-top:0}
+/* 3. Thumbnails everywhere become art */
+.cw-thumb.cw-ds-thumb{position:relative;overflow:hidden;background:#e6f0f1;color:#fff;font-size:0}
+.cw-thumb.cw-ds-thumb svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cw-thumb.cw-ds-thumb .cw-ds-cap{position:absolute;left:7px;bottom:6px;font-size:9.5px;font-weight:800;color:#fff;background:rgba(13,48,52,.62);border-radius:5px;padding:2px 6px;max-width:calc(100% - 14px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cw-thumb.cw-ds-thumb:not(.big) .cw-ds-cap{display:none}
+/* 4. Ask GeeVee bar: one line when idle, opens on focus */
+.gv-assistant-bar{padding:6px 8px;gap:8px;bottom:12px;border-radius:14px}
+.gv-assistant-mark{width:32px;height:32px;border-radius:9px;font-size:11px}
+.gv-assistant-bar:not(:focus-within) .gv-dock-context{display:none}
+.gv-assistant-input input{min-height:30px}
+.gv-assistant-bar:focus-within{border-color:#53b9c0;box-shadow:0 12px 40px rgba(13,57,65,.2)}
+.gv-assistant-bar .gv-assistant-btn,.gv-assistant-bar .gv-expand{width:36px;height:36px;min-height:36px}
+.main-inner{padding-bottom:96px}
+.cw-page{padding-bottom:80px}
+/* 5. Small polish */
+.side-bottom .muted.tiny{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.cw-dm-step .cw-two>div:nth-child(2){background:#f3fbfb;border:1px solid #cfe7e9;border-radius:10px;padding:10px 12px}
+.cw-dm-step .cw-two>div:nth-child(2) .caps{color:#0b6e76}
+.cw-dm-step .cw-two>div:nth-child(2) .cw-dm-list{color:#1f4a50}
+.cw-pill.on{background:#0d7f88;border-color:#0d7f88}
+.cw-pill.on span{color:#fff}
+.gv-day-items .gv-compact-item.cw-ds-leaving{overflow:hidden;opacity:0;transition:height .17s ease-in,opacity .13s ease-in,margin .17s;margin-bottom:-9px!important;pointer-events:none;border-width:0!important}
+/* 6. Motion, kept small */
+@keyframes cwDsUp{from{transform:translateX(-50%) translateY(10px)}to{transform:translateX(-50%) translateY(0)}}
+@keyframes cwDsPop{from{transform:translateY(8px) scale(.985)}to{transform:none}}
+@keyframes cwDsTick{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+.toast{animation:cwDsUp .18s ease-out}
+.dialog{animation:cwDsPop .16s ease-out}
+.cw-dm-panel{animation:cwDsPop .16s ease-out}
+.cw-jn-step.done .icon{animation:cwDsTick .3s ease-out}
+.gv-day-items .gv-compact-item.expanded{animation:cwDsPop .18s ease-out}
+.btn,.cw-pill,.tabs button,.cw-subnav button{transition:background-color .12s,border-color .12s,color .12s,box-shadow .12s}
+@media (prefers-reduced-motion:reduce){.toast,.dialog,.cw-dm-panel,.cw-jn-step.done .icon,.gv-day-items .gv-compact-item.expanded{animation:none}}
+@media (max-width:1150px){.cw-ds-hero{grid-template-columns:150px minmax(0,1fr)}.cw-ds-art{width:150px;min-height:104px}}
+@media (max-width:800px){.cw-ds-hero{grid-template-columns:minmax(0,1fr);gap:12px}.cw-ds-hero>div:nth-child(2){grid-column:1;grid-row:2}.cw-ds-hero .cw-prop-actions{grid-column:1;grid-row:3}.cw-ds-art{grid-column:1;grid-row:1;width:100%;height:140px;min-height:0}.cw-ds-week{display:none}.gv-small-demo{display:none}}
