@@ -161,7 +161,7 @@ const CW_TRAIN={
   '18:1':'Click By agent to see the same numbers per person, and who to talk to today.',
   '18:2':'Click Leaks this week to go back to the list.',
   '18:3':'Every row opens the record. Click Open, Review or Compliance on any row and you are looking at the actual listing or approval.',
-  '12:0':'At the top of Today, five inspection confirmations are ready, all the same template. Preview one if you like, then click Approve all.',
+  '12:0':'At the top of Today, a batch of five texts is ready, all the same template. Preview one if you like, then click Approve all. One tap, five sends, each still logged on its own.',
   '12:1':'Now type to GeeVee: ask Priya to call the open home buyers for 9 Rose Avenue, remind me Friday. GeeVee assigns the task and sets your reminder.',
   '12:2':'The Delegated card on the right tracks it. If Priya\'s task slips, it comes back to your Today.',
   '21:0':'Click Close my day.',
