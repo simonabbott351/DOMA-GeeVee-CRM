@@ -25,7 +25,7 @@ const hash = t => { let x = 5381; const s = String(t).replace(/\s+/g, ' ').trim(
     const full = (vo, story) => { vo.ch.forEach((t, i) => out.add((i === 0 ? vo.open + ' ' : '') + t)); Object.values(vo.step).forEach(t => out.add(t)); Object.values(vo.sub || {}).forEach(t => out.add(t)); story.forEach((c, i) => out.add('What just happened. ' + c.out.join('. ') + '. ' + (vo.out[i] || c.saved))); out.add(vo.end); };
     full(CW_VO, CW_STORY);
     // the film and training cuts: one outcome line per chapter, read as "What just happened. <line>."
-    for (const cut of [CW_FILM, CW_TRAIN]) { cut.ch.forEach((t, i) => out.add((i === 0 ? cut.open + ' ' : '') + t)); Object.values(cut.step).forEach(t => out.add(t)); Object.values(cut.sub || {}).forEach(t => out.add(t)); cut.out.forEach(t => out.add('What just happened. ' + t.replace(/\.$/, '') + '. ')); out.add(cut.end); }
+    for (const cut of [CW_FILM, CW_TRAIN]) { cut.ch.forEach((t, i) => out.add((i === 0 ? cut.open + ' ' : '') + t)); Object.values(cut.step).forEach(t => out.add(t)); Object.values(cut.sub || {}).forEach(t => out.add(t)); Object.values(cut.after || {}).forEach(t => out.add(t)); cut.out.forEach(t => out.add('What just happened. ' + t.replace(/\.$/, '') + '. ')); out.add(cut.end); }
     return [...out];
   });
   await browser.close();
@@ -39,7 +39,8 @@ const hash = t => { let x = 5381; const s = String(t).replace(/\s+/g, ' ').trim(
     for (const t of texts) {
       const h = hash(t); const file = h + '.mp3'; const p = path.join(dir, file);
       if (!fs.existsSync(p) || fs.statSync(p).size < 1000) {
-        execFileSync(PY, ['-m', 'edge_tts', '--voice', id, '--rate=-4%', '--text', t, '--write-media', p], { stdio: 'pipe' }); made++;
+        let ok = false; for (let attempt = 1; attempt <= 4 && !ok; attempt++) { try { execFileSync(PY, ['-m', 'edge_tts', '--voice', id, '--rate=-4%', '--text', t, '--write-media', p], { stdio: 'pipe' }); ok = fs.existsSync(p) && fs.statSync(p).size >= 1000; } catch (e) { ok = false; } if (!ok) { try { fs.unlinkSync(p); } catch (e) {} execFileSync(process.execPath, ['-e', 'setTimeout(()=>{}, 1500)']); } }
+        if (!ok) throw new Error('could not record: ' + t.slice(0, 60)); made++;
       }
       if (!lines[h] || !lines[h].ms) {
         const sec = parseFloat(String(execFileSync(FFPROBE, ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', p])).trim());
