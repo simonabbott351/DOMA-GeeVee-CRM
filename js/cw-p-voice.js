@@ -64,8 +64,10 @@ cwStTick=function(){const st=cwStS();const s=cwDmS();document.body.classList.tog
  if(st.phase==='outcome'){cwVoSay('What just happened. '+c.out.join('. ')+'. '+(CW_VO.out[st.ch]||c.saved),'out:'+st.ch);if(st.watch&&!cwVo.busy&&now-(cwVo.endedAt||0)>4000/sp&&now-(cwStTick.card||0)>2500){cwStTick.card=now;doAction('cwStNextChapter')}return}
  if(st.phase==='end'){cwVoSay(CW_VO.end,'end');return}
  const {cur,done,i}=cwWkSub();
- const line=CW_VO.sub[s.step+':'+i];
- if(cur&&line)cwVoSay(line,'sub:'+s.step+':'+i);else if(CW_VO.step[s.step])cwVoSay(CW_VO.step[s.step],'st:'+s.step);
+ const line=CW_VO.sub[s.step+':'+i];cwVo.said=cwVo.said||{};
+ /* the step's own line first, once; then the line for the current click; nothing is repeated when the step is done */
+ if(CW_VO.step[s.step]&&!cwVo.said['st:'+s.step]){cwVo.said['st:'+s.step]=1;cwVoSay(CW_VO.step[s.step],'st:'+s.step)}
+ else if(cur&&line)cwVoSay(line,'sub:'+s.step+':'+i);
  if(!st.watch||ui.gvVoiceActive||cwVo.busy)return;
  if(now-(cwVo.endedAt||0)<1600/sp)return;
  if(now-(cwStTick.last||0)<(cur&&cur.kind==='note'?3600:3000)/sp)return;cwStTick.last=now;
@@ -81,7 +83,7 @@ cwStTick=function(){const st=cwStS();const s=cwDmS();document.body.classList.tog
 /* captions and the caption toggle in the panel strip */
 {const prev=cwDmPanel;cwDmPanel=function(){let html=prev();const st=cwStS();if(!st.on||st.phase!=='play')return html;return html.replace('<button type="button" class="cw-dm-x" data-action="cwStVoice"',`<button type="button" class="cw-dm-x cw-vo-cc ${st.cap===false?'':'on'}" data-action="cwStCap" title="${st.cap===false?'Captions off':'Captions on'}" aria-label="${st.cap===false?'Turn captions on':'Turn captions off'}">CC</button><button type="button" class="cw-dm-x ${st.voice?'on':''}" data-action="cwStVoice"`)}}
 /* reset the spoken keys when the chapter or step changes */
-{const prevPlay=CW_ACT.cwStPlay;cwOn('cwStPlay',()=>{cwVoStop();cwVo.key='';return prevPlay()});const prevNextCh=CW_ACT.cwStNextChapter;cwOn('cwStNextChapter',()=>{cwVoStop();cwVo.key='';return prevNextCh()});const prevStart=CW_ACT.cwStStart;cwOn('cwStStart',m=>{cwVoStop();cwVo.key='';cwVo.text='';const r=prevStart(m);cwStS().openSaid=false;cwStS().cap=true;cwStS().paused=false;cwStS().speed=cwStS().speed||1;cwVoBar();return r});const prevEnd=CW_ACT.cwStEnd;cwOn('cwStEnd',()=>{cwVoStop();cwVo.text='';cwStS().paused=false;cwVoCaption();const r=prevEnd();cwVoBar();return r});const prevDeep=CW_ACT.cwStDeep;cwOn('cwStDeep',()=>{cwVoStop();cwVo.text='';const r=prevDeep();cwVoBar();return r})}
+{const prevPlay=CW_ACT.cwStPlay;cwOn('cwStPlay',()=>{cwVoStop();cwVo.key='';return prevPlay()});const prevNextCh=CW_ACT.cwStNextChapter;cwOn('cwStNextChapter',()=>{cwVoStop();cwVo.key='';return prevNextCh()});const prevStart=CW_ACT.cwStStart;cwOn('cwStStart',m=>{cwVoStop();cwVo.key='';cwVo.text='';cwVo.said={};const r=prevStart(m);cwStS().openSaid=false;cwStS().cap=true;cwStS().paused=false;cwStS().speed=cwStS().speed||1;cwVoBar();return r});const prevEnd=CW_ACT.cwStEnd;cwOn('cwStEnd',()=>{cwVoStop();cwVo.text='';cwStS().paused=false;cwVoCaption();const r=prevEnd();cwVoBar();return r});const prevDeep=CW_ACT.cwStDeep;cwOn('cwStDeep',()=>{cwVoStop();cwVo.text='';const r=prevDeep();cwVoBar();return r})}
 /* the printable script */
 cwPage('/script',{title:'Demo script',group:'dash',noAI:true,render(){return `${cwHeader('Demo script','The voiceover, word for word, in case you would rather say it yourself. Chapter by chapter, step by step.',cwBtn(ico('file','sm')+' Print','cwDmPrint','','')+cwGoBtn('Start the demo','/start','primary'))}
  <div class="cw-dm-brief cw-vo-script"><section><h2>Opening</h2><p>${h(CW_VO.open)}</p></section>

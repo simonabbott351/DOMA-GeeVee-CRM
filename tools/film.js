@@ -1,5 +1,6 @@
 // Records the story as a film: a screen capture of watch mode with the recorded narration mixed in.
-// Usage: node tools/film.js [--full] [--out dist/film.mp4] [--width 1600 --height 900]
+// Usage: node tools/film.js [--train [--chapter 1..5]] [--full] [--out dist/film.mp4] [--width 1600 --height 900]
+//   default: the film cut (dist/film.mp4) · --train: the training cut, every click explained (dist/train.mp4, or train-N.mp4 per chapter) · --full: the whole story
 // Needs: puppeteer-core + Chrome, ffmpeg, and data/vo-audio.js with the voice recorded (node tools/vo-audio.js).
 const puppeteer = require('puppeteer-core');
 const path = require('path');
@@ -9,7 +10,10 @@ const ROOT = path.join(__dirname, '..');
 const args = process.argv.slice(2);
 const arg = (k, d) => args.includes(k) ? args[args.indexOf(k) + 1] : d;
 const FULL = args.includes('--full');
-const OUT = path.resolve(ROOT, arg('--out', FULL ? 'dist/film-full.mp4' : 'dist/film.mp4'));
+const TRAIN = args.includes('--train');
+const CHAPTER = arg('--chapter', '');
+const MODE = (FULL ? 'record-full' : TRAIN ? 'record-train' : 'record') + (CHAPTER ? '|' + CHAPTER : '');
+const OUT = path.resolve(ROOT, arg('--out', FULL ? 'dist/film-full.mp4' : TRAIN ? (CHAPTER ? 'dist/train-' + CHAPTER + '.mp4' : 'dist/train.mp4') : 'dist/film.mp4'));
 const W = Number(arg('--width', 1600)), H = Number(arg('--height', 900));
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const FF = (() => { if (process.env.FFMPEG) return process.env.FFMPEG; try { const base = path.join(process.env.LOCALAPPDATA, 'Microsoft', 'WinGet', 'Packages'); const d = fs.readdirSync(base).find(x => x.startsWith('Gyan.FFmpeg')); const sub = fs.readdirSync(path.join(base, d)).find(x => x.startsWith('ffmpeg')); return path.join(base, d, sub, 'bin', 'ffmpeg.exe'); } catch (e) { return 'ffmpeg'; } })();
@@ -37,16 +41,16 @@ if (!voice) { console.error('No recorded voice in data/vo-audio.js. Run node too
   await cdp.send('Page.startScreencast', { format: 'jpeg', quality: 88, maxWidth: W, maxHeight: H, everyNthFrame: 1 });
   await wait(600);
   await page.evaluate(() => console.log('T0|' + performance.now() + '|' + Date.now()));
-  await page.evaluate(mode => doAction('cwStFilm', mode), FULL ? 'record-full' : 'record');
+  await page.evaluate(mode => doAction('cwStFilm', mode), MODE);
   const started = Date.now(); let last = ''; let same = 0;
-  while (Date.now() - started < 15 * 60e3) {
+  while (Date.now() - started < 45 * 60e3) {
     await wait(500);
     const s = await page.evaluate(() => { const st = cwStS(); return { on: st.on, phase: st.phase, busy: cwVo.busy, key: cwVo.key, ch: st.ch, idx: st.idx }; });
     if (!s.on) break;
     if (s.phase === 'end' && !s.busy) { await wait(2500); break; }
     const sig = JSON.stringify(s); if (sig === last) { same++; if (same > 160) { console.error('stalled at ' + sig); break; } } else { same = 0; last = sig; }
   }
-  await wait(1000); try { await cdp.send('Page.stopScreencast'); } catch (e) {} await wait(500);
+  try { await cdp.send('Page.stopScreencast'); } catch (e) {} await wait(300);
   await browser.close();
   if (t0 === null || frames.length < 2) { console.error('no T0 marker or no frames'); process.exit(1); }
   // the picture: every captured frame shown until the next one, at its real time

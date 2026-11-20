@@ -24,8 +24,8 @@ const hash = t => { let x = 5381; const s = String(t).replace(/\s+/g, ' ').trim(
     const out = new Set();
     const full = (vo, story) => { vo.ch.forEach((t, i) => out.add((i === 0 ? vo.open + ' ' : '') + t)); Object.values(vo.step).forEach(t => out.add(t)); Object.values(vo.sub || {}).forEach(t => out.add(t)); story.forEach((c, i) => out.add('What just happened. ' + c.out.join('. ') + '. ' + (vo.out[i] || c.saved))); out.add(vo.end); };
     full(CW_VO, CW_STORY);
-    // the film cut: one outcome line per chapter, read as "What just happened. <line>."
-    CW_FILM.ch.forEach((t, i) => out.add((i === 0 ? CW_FILM.open + ' ' : '') + t)); Object.values(CW_FILM.step).forEach(t => out.add(t)); CW_FILM.out.forEach(t => out.add('What just happened. ' + t.replace(/\.$/, '') + '. ')); out.add(CW_FILM.end);
+    // the film and training cuts: one outcome line per chapter, read as "What just happened. <line>."
+    for (const cut of [CW_FILM, CW_TRAIN]) { cut.ch.forEach((t, i) => out.add((i === 0 ? cut.open + ' ' : '') + t)); Object.values(cut.step).forEach(t => out.add(t)); Object.values(cut.sub || {}).forEach(t => out.add(t)); cut.out.forEach(t => out.add('What just happened. ' + t.replace(/\.$/, '') + '. ')); out.add(cut.end); }
     return [...out];
   });
   await browser.close();

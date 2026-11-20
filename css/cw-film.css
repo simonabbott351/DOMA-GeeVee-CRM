@@ -2,6 +2,11 @@
 body.cw-film-record #cw-vo-bar,body.cw-film-record .cw-dm-panel{display:none !important}
 body.cw-film-record #cw-vo-cap{font-size:21px;line-height:1.35;padding:14px 22px;max-width:min(1100px,calc(100vw - 80px));bottom:36px}
 body.cw-film-record .gv-assistant-bar{display:none !important}
+/* The cursor that travels to the next click in film and training modes */
+#cw-fm-cursor{position:fixed;z-index:99;left:0;top:0;width:30px;height:30px;pointer-events:none;display:none;transition:left .55s cubic-bezier(.3,.7,.3,1),top .55s cubic-bezier(.3,.7,.3,1);filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+#cw-fm-cursor::after{content:'';position:absolute;left:-14px;top:-14px;width:40px;height:40px;border-radius:50%;border:3px solid #ffb547;opacity:0;transform:scale(.4)}
+#cw-fm-cursor.click::after{animation:cwFmClick .5s ease-out}
+@keyframes cwFmClick{0%{opacity:.9;transform:scale(.4)}100%{opacity:0;transform:scale(1.6)}}
 /* Film cut button on the start page */
 .cw-st-film{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0 14px}
 .cw-st-film .btn{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3)}
