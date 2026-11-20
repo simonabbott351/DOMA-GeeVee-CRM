@@ -22,12 +22,13 @@ State lives in `localStorage` under `doma-v2-phase2-integrated-v2`. "Reset for d
 | `data/seed.js` | The shared record every page works on (people, deals, messages, tasks, GeeVee actions). |
 | `data/legacy.js` | The 49 old CRM pages, compressed, shown read-only under Full CRM. Generated. |
 | `data/specs.json` | The 168 screens of the current CRM with their routes and groups. |
+| `data/vo-audio.js`, `audio/` | The recorded narration index and the audio files. Generated. |
 | `js/app.js` | The base app: state, Today, Messages, calls, approvals, GeeVee chat, dialogs, routing. |
 | `js/cw-core.js` | The CRM page framework: `cwPage` routes, `cwOn` actions, `cwModalDef` dialogs, tables, forms. |
 | `js/cw-data.js`, `cw-data2.js` | Extends the record with CRM fields and richer dated sample data. |
 | `js/cw-p-*.js` | One layer per area or feature, loaded in the order `index.html` lists. Later layers extend or replace earlier functions by name. |
 | `js/start.js` | The first render. |
-| `tools/` | `bundle.js` (one-file build), `check.js` (syntax and dash check). |
+| `tools/` | `bundle.js` (one-file build), `check.js` (syntax and dash check), `vo-audio.js` (record the narration), `film.js` (record the film). |
 | `tests/` | Headless browser checks. See `tests/README.md`. |
 | `docs/` | The architecture brief and notes for contributors. |
 
@@ -53,4 +54,10 @@ Anything that touches `state.cw` at load time must run inside a `render` wrapper
 
 ## Demo
 
-The Demo guide (`#/demo`) walks a presenter through 22 steps with an amber ring on the next click. `#/start` is the five-chapter story with a watch mode and voiceover. `#/script` is the printable narration. `#/ceo-brief` is a one-page summary.
+The Demo guide (`#/demo`) walks a presenter through 22 steps with an amber ring on the next click. `#/start` is the five-chapter story with a watch mode and narration. `#/script` is the printable narration. `#/ceo-brief` is a one-page summary.
+
+**Narration.** The story speaks with a recorded Australian voice (`audio/william/`, one file per line, indexed in `data/vo-audio.js`). A line without a recording falls back to the browser's own voice. `npm run voice` records any new or changed lines (needs Python with `pip install edge-tts`, and ffprobe). The single-file bundle in `dist/` has no audio folder beside it, so it uses the browser voice unless you copy `audio/` next to it.
+
+**Two lengths.** "Watch the story" is the full five chapters, about twelve minutes. "Watch the short version" is the film cut: the same chapters, one line per step, brisker clicks, about seven minutes.
+
+**The film.** `npm run film` records the short version as `dist/film.mp4` (`--full` for the whole story): a screen capture of watch mode with the narration mixed in, 1600 by 900, playable anywhere. Needs ffmpeg.

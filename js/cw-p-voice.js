@@ -58,7 +58,7 @@ cwOn('cwStCap',()=>{const st=cwStS();st.cap=st.cap===false?true:false;persist();
 cwStTick=function(){const st=cwStS();const s=cwDmS();document.body.classList.toggle('cw-story',!!st.on);document.body.classList.toggle('cw-story-card',!!st.on&&st.phase!=='play');document.body.classList.toggle('cw-story-paused',!!(st.on&&st.paused));if(!st.on){cwVoCaption();cwVoBar();return}
  if(!document.getElementById('cw-vo-bar'))cwVoBar();
  const tm=document.querySelector('.cw-st-time');if(tm)tm.textContent=cwStElapsed();
- const c=CW_STORY[st.ch];if(!c)return;const now=Date.now();const sp=st.speed||1;
+ const c=CW_STORY[st.ch];if(!c)return;const now=Date.now();const sp=(st.speed||1)*(st.pace||1);
  if(st.paused){cwVoCaption();return}
  if(st.phase==='title'){const first=st.ch===0&&!st.openSaid;cwVoSay((first?CW_VO.open+' ':'')+CW_VO.ch[st.ch],'ch:'+st.ch);if(first)st.openSaid=true;if(st.watch&&!cwVo.busy&&now-(cwVo.endedAt||0)>2000/sp&&now-(cwStTick.card||0)>1200){cwStTick.card=now;doAction('cwStPlay')}return}
  if(st.phase==='outcome'){cwVoSay('What just happened. '+c.out.join('. ')+'. '+(CW_VO.out[st.ch]||c.saved),'out:'+st.ch);if(st.watch&&!cwVo.busy&&now-(cwVo.endedAt||0)>4000/sp&&now-(cwStTick.card||0)>2500){cwStTick.card=now;doAction('cwStNextChapter')}return}

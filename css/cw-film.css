@@ -1,0 +1,9 @@
+/* Recording a film: no control bar, no guide panel, big captions like subtitles */
+body.cw-film-record #cw-vo-bar,body.cw-film-record .cw-dm-panel{display:none !important}
+body.cw-film-record #cw-vo-cap{font-size:21px;line-height:1.35;padding:14px 22px;max-width:min(1100px,calc(100vw - 80px));bottom:36px}
+body.cw-film-record .gv-assistant-bar{display:none !important}
+/* Film cut button on the start page */
+.cw-st-film{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0 14px}
+.cw-st-film .btn{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3)}
+.cw-st-film .btn:hover{background:rgba(255,255,255,.2)}
+.cw-st-film .muted{color:#9fd5d8}

@@ -6,6 +6,8 @@
   "scripts": {
     "check": "node tools/check.js",
     "bundle": "node tools/bundle.js",
+    "voice": "node tools/vo-audio.js",
+    "film": "node tools/film.js",
     "serve": "npx --yes live-server@1.2.2 . --port=5500 --no-browser",
     "test": "node tests/crawl.js index.html"
   }

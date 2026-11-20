@@ -21,7 +21,8 @@ if (problems.length) { console.error('PROBLEMS:\n - ' + problems.join('\n - '));
 let out = html.replace(/\n?  <link rel="stylesheet" href="[^"]+">/g, '').replace(/\n?  <script src="[^"]+"><\/script>/g, '');
 // function replacers: a plain string replacement would expand $& and $' patterns inside the code
 out = out.replace('</head>', () => '<style>' + css + '</style></head>');
-out = out.replace('</body>', () => '<script type="application/json" id="seed">' + data.DOMA_SEED + '</script><script type="application/json" id="legacy">' + data.DOMA_LEGACY + '</script><script>(()=>{\'use strict\';\n' + js + '\nrender();\n})();\n</script></body>');
+const extra = Object.keys(data).filter(k => k !== 'DOMA_SEED' && k !== 'DOMA_LEGACY').map(k => '<script>window.' + k + '=' + data[k] + ';</script>').join('');
+out = out.replace('</body>', () => '<script type="application/json" id="seed">' + data.DOMA_SEED + '</script><script type="application/json" id="legacy">' + data.DOMA_LEGACY + '</script>' + extra + '<script>(()=>{\'use strict\';\n' + js + '\nrender();\n})();\n</script></body>');
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, out);
 console.log('bundled', OUT, (out.length / 1e6).toFixed(2) + ' MB');
