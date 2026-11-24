@@ -6,7 +6,9 @@ function cwJnComps(d){const x=cwDX(d);const near=[d.suburb,...(CW_NEAR[d.suburb]
  let picks=state.cw.sales.filter(s=>near.includes(s.suburb)&&Math.abs(s.beds-x.beds)<=1).sort(byPrice).slice(0,3);
  if(picks.length<3)picks=picks.concat(state.cw.sales.filter(s=>!picks.includes(s)&&Math.abs(s.beds-x.beds)<=1).sort(byPrice)).slice(0,3);
  if(picks.length<3)picks=picks.concat(state.cw.sales.filter(s=>!picks.includes(s)).sort(byPrice)).slice(0,3);
- return picks.map(s=>[s.address+', '+s.suburb,s.price,(s.suburb===d.suburb?'Same suburb':near.includes(s.suburb)?'Neighbouring suburb':'Closest recorded sale by price and size')+', '+s.beds+' bed, sold '+cwDate(s.date)])}
+ return picks.map(s=>[s.address+', '+s.suburb,s.price,(s.suburb===d.suburb?'Same suburb':near.includes(s.suburb)?'Neighbouring suburb':'Closest recorded sale by price and size')+', sold '+cwDate(s.date),cwJnFeatures(s)])}
+/* key features the Property Price Statement must list for the property and each comparable (type, bedrooms, bathrooms, car spaces, internal area, land size) */
+function cwJnFeatures(s){return [s.type,s.beds!=null?s.beds+' bed':'',s.baths!=null?s.baths+' bath':'',s.cars!=null?s.cars+' car':'',s.internal?s.internal+' m2 internal':'',s.land?s.land+' m2 land':''].filter(Boolean).join(', ')}
 const CW_JN_PHOTO_NAMES=['Front facade','Living room','Kitchen','Dining','Main bedroom','Bedroom 2','Bedroom 3','Bathroom','Rear garden','Outdoor entertaining','Street view','Floor plan'];
 function cwJnDeliver(b,names){const d=findD(b.dealId);if(!d)return;const x=cwDX(d),p=findP(d.contactId);cwJnSnap();const done=[];
  const list=names&&names.length?names:CW_JN_PHOTO_NAMES.map((n,i)=>String(i+1).padStart(2,'0')+' '+n+'.jpg');

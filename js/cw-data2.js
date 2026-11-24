@@ -5,7 +5,7 @@
    Rules: scalars are filled only when empty or still at the seeded default (checked against SEED where it exists);
    arrays only receive entries whose ids are not already present. Nothing a user changed is overwritten.
    Also makes the Analytics, Commissions and Agent analytics date ranges change their totals by wrapping cwPfPortal and cwPfStats. */
-const CW_D2_VERSION=1;
+const CW_D2_VERSION=2;
 const D2_AG={caleb:CW_ME,sam:'Sam Taylor',dan:'Daniel Reid',priya:'Priya Shah',alex:'Alex Morgan'};
 
 /* ---------- helpers ---------- */
@@ -156,10 +156,15 @@ const D2_T_SELLER={
  sold:['Settlement for {addr}',['Just checking what we need to do before settlement on {addr}.','Hi {first}, your conveyancer handles the transfer. We do the final inspection with the buyer the day before.','Thanks, and do we need to leave the keys with you?','Yes, drop them to the office on the morning of settlement.','Will do.']],
  lost:['Market update',['We went with another agency for {addr} but would still like your market updates.','Of course {first}. I will keep you on the monthly {suburb} update.','Thanks, and good luck with the spring listings.','Appreciated. Call me any time.','Will do.']]};
 function d2Trend(d){const S=state.cw.sales.filter(s=>s.suburb===d.suburb||(CW_NEAR[d.suburb]||[]).includes(s.suburb));if(S.length<2)return 'between '+cwShort(d.guide*0.95)+' and '+cwShort(d.guide*1.05);const p=S.map(s=>s.price).sort((a,b)=>a-b);return 'between '+cwShort(p[0])+' and '+cwShort(p[p.length-1])}
+const D2_STAGE_RANK={'For sale':9,Listed:8,Authority:7,Proposal:6,Appraisal:5,Connected:4,'New lead':3,Sold:2,Lost:1};
+function d2OwnDeal(p){return state.deals.filter(d=>d.contactId===p.id).sort((a,b)=>(D2_STAGE_RANK[b.stage]||0)-(D2_STAGE_RANK[a.stage]||0))[0]||null}
+/* earlier versions gave sellers threads about other people's listings; put those back to the seed so they are re-templated below */
+function cwD2Repoint(){state.messages.forEach(m=>{const p=findP(m.contactId),d=m.dealId?findD(m.dealId):null,seed=d2SeedM(m.id);if(!p||!d||!seed||p.role!=='seller'||d.contactId===p.id)return;Object.assign(m,structuredClone(seed))})}
 function cwD2Messages(){const live=d2LiveDeals();state.messages.forEach((m,i)=>{const seed=d2SeedM(m.id);const p=findP(m.contactId);if(!p)return;const k=cwHash(m.id);
   const changed=seed&&(m.last!==seed.last||m.subject!==seed.subject||(m.thread||[]).length!==(seed.thread||[]).length);
   if(!seed||changed){d2Fill(m,'at',d2ParseWhen(m.time,i));(m.thread||[]).forEach((t,j)=>{d2Fill(t,'at',new Date(Date.parse(m.at)-((m.thread.length-1-j)*5*3600e3)).toISOString())});return}
   let d=m.dealId?findD(m.dealId):null;const asSeller=p.role==='seller'||(p.role==='both'&&d&&d.contactId===p.id);
+  if(asSeller&&(!d||d.contactId!==p.id)){d=d2OwnDeal(p);m.dealId=d?d.id:''}
   if(!asSeller&&(!d||d.contactId===p.id))d=cwPick(m.id,live)||d;
   const x=d?cwDX(d):null;const oh=d?state.cw.openHomes.filter(o=>o.dealId===d.id).sort((a,b)=>Date.parse(b.day)-Date.parse(a.day)):[];const next=oh.find(o=>Date.parse(o.day)>Date.now())||oh[0];const closed=oh.find(o=>o.status==='Closed');
   const agent=asSeller?(p.owner||CW_ME):(d?d2Agent(d):p.owner||CW_ME);const pr=cwPX(p).prefs||{};
@@ -310,9 +315,24 @@ function cwD2Stamp(){if(!state||!state.activity)return;const now=cwNowISO();for(
 const cwD2PrevPersist=persist;
 persist=function(){try{cwD2Stamp()}catch(e){}return cwD2PrevPersist()};
 
+/* three seeded drafts were task notes, not messages (24 Nov 2026); replace them where a browser still holds the old words */
+function cwD2Words(){
+ /* comparables picked before 24 Nov 2026 carry no key features; add them from the sales record by address */
+ if(typeof cwJnFeatures==='function')for(const dl of state.deals){const x=dl.cw;if(!x||!Array.isArray(x.comps))continue;for(const c of x.comps){if(Array.isArray(c)&&c.length===3){const sale=(state.cw.sales||[]).find(s=>String(c[0]).startsWith(s.address));if(sale)c.push(cwJnFeatures(sale))}}}
+ /* sales records gained key features (cars, land, internal area, type) for the Property Price Statement */
+ if(typeof cwSalesSeed==='function'&&state.cw.sales){const fresh=cwSalesSeed();for(const x of state.cw.sales){if(x.cars==null){const f=fresh.find(y=>y.address===x.address);if(f)Object.assign(x,{cars:f.cars,land:f.land,internal:f.internal,type:f.type})}}}
+const fix=(id,test,patch)=>{const a=state.actions.find(x=>x.id===id);if(a&&test(a))Object.assign(a,patch)};const seed=id=>SEED.actions.find(x=>x.id===id)||{};
+ /* the seeded authority approval must drive its agreement: approve on Today sends it, reject stops it */
+ {const g=(state.cw.esign?.agreements||[]).find(x=>x.id==='AGR-1'),act=state.actions.find(x=>x.id==='A-6004');if(g&&act&&!g.pendingAction&&act.status==='Awaiting review'){g.pendingAction=act.id;if(!(g.recipients||[]).length&&typeof cwEsAddRecipient==='function'){const p=findP(act.contactId);if(p)cwEsAddRecipient(g,{contactId:p.id,name:p.name,email:p.email,role:'Vendor',order:1})}}}
+ fix('A-6004',a=>!a.jnAgr&&!a.auAgr&&!a.j3Agr,{jnAgr:'AGR-1',body:seed('A-6004').body});
+ fix('A-6003',a=>/prepared for agent review/.test(a.body||''),{title:seed('A-6003').title,subject:seed('A-6003').subject,body:seed('A-6003').body,attachments:seed('A-6003').attachments});
+ fix('A-6002',a=>/^Thanks Jordan. I will confirm/.test(a.body||''),{subject:seed('A-6002').subject,body:seed('A-6002').body,attachments:seed('A-6002').attachments});
+ fix('A-6006',a=>/pending agent verification/.test(a.body||''),{contactId:seed('A-6006').contactId,dealId:seed('A-6006').dealId,body:seed('A-6006').body});
+ const w=state.gvx&&state.gvx.withdrawn;const c=state.actions.find(x=>x.id==='A-6006');if(w&&w['A-6006']&&c&&/^Withdrawn/.test(c.status||'')){delete w['A-6006'];c.status='Awaiting review'}}
+
 /* ---------- apply once per version ---------- */
 function cwD2Ensure(){if(!state.cw||state.cw.d2===CW_D2_VERSION)return;
- try{cwD2Agents();cwD2Leads();cwD2Properties();cwD2Messages();cwD2Contacts();cwD2Comms();cwD2Esign();cwD2Reports();cwD2Dates()}catch(e){console.error('cw-data2',e)}
+ try{cwD2Repoint();cwD2Agents();cwD2Leads();cwD2Properties();cwD2Messages();cwD2Contacts();cwD2Comms();cwD2Esign();cwD2Reports();cwD2Dates();cwD2Words()}catch(e){console.error('cw-data2',e)}
  state.cw.d2=CW_D2_VERSION;persist()}
 
 /* ---------- date ranges on Analytics, Commissions and Agent analytics ---------- */

@@ -154,9 +154,10 @@ function cwLdApprPage(market){return{title:market+' pipeline',group:'leads',wide
  let ds=cwProps().filter(d=>cwDX(d).market===market&&(['Appraisal','Proposal','Authority'].includes(d.stage)||(d.stage==='Lost'&&cwDX(d).apprCol==='Lost')));
  if(mine)ds=ds.filter(d=>(cwDX(d).agents[0]||CW_ME)===CW_ME);ds=cwSearchRows(ds,q,d=>d.address+' '+d.suburb+' '+personName(d.contactId));
  const colOf=d=>d.stage==='Lost'?'Lost':cwDX(d).apprCol||'New / Unassigned';
- const cols=CW_LD_ACOLS.map(c=>{const it=ds.filter(d=>colOf(d)===c);return{id:c,name:c==='New / Unassigned'?c:c+' Appraisals',items:it,sub:'$'+(it.reduce((a,d)=>a+d.guide,0)/1e6).toFixed(2)+'m'}});
+ const cols=CW_LD_ACOLS.map(c=>{const it=ds.filter(d=>colOf(d)===c);return{id:c,name:c==='New / Unassigned'?c:c+' Appraisals',items:it,sub:it.length?'$'+(it.reduce((a,d)=>a+d.guide,0)/1e6).toFixed(2)+'m':'None'}});
  return `${cwHeader(market+' Pipeline',market==='On market'?'Appraisals for owners who plan a public campaign.':'Appraisals for owners who want an off-market sale.',`${cwPills('cwLd:apmine',[['mine','My appraisals'],['all','All agents']])}${cwBtn('Add appraisal','cwLdApprNew',market,'primary')}`)}
  ${cwStats(cols.map(c=>[c.name,c.items.length,c.sub]),'grid-5')}
+ ${ds.length?'':`<p class="hint" style="margin:4px 0 10px">No ${market.toLowerCase()} appraisals ${mine?'of yours ':''}yet. Add one, or ${mine?'switch to All agents':'check the other pipeline'}.</p>`}
  <div class="toolbar">${cwInput('cwLd:apq','Search leads/Property...')}</div>
  ${cwKanban(cols,d=>`<div class="pipe-card"><h3>${h(d.address)}, ${h(d.suburb)}</h3><div class="sub">${h(personName(d.contactId))} · ${h(d.stage)}</div><div class="money">${d.guide?cwShort(d.guide):'No estimate yet'}</div><select class="field cw-mini" data-cwldcol="${h(d.id)}" aria-label="Column for ${h(d.address)}">${CW_LD_ACOLS.map(c=>`<option ${c===colOf(d)?'selected':''}>${h(c)}</option>`).join('')}</select><div class="cw-row" style="gap:4px;margin-top:6px">${cwBtn('Open','openDeal',d.id,'sm')}${cwBtn('Call','call',d.contactId,'sm')}</div></div>`)}`},
  ai(){const ds=cwProps().filter(d=>cwDX(d).market===market&&['Appraisal','Proposal','Authority'].includes(d.stage));const unsorted=ds.filter(d=>(cwDX(d).apprCol||'New / Unassigned')==='New / Unassigned');const total=ds.reduce((a,d)=>a+comm(d),0);

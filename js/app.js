@@ -1220,10 +1220,10 @@ const GVX_OPEN={'D-2006':{when:'today at 2:30pm',src:"Calendar: Open for inspect
 function gvxEnsure(){
  if(!state.gvx)state.gvx={answered:{},pin:'',withdrawn:{}};
  if(state.settings.gvxAuto===undefined)state.settings.gvxAuto=true;
- // Drafted texts to brand-new seller leads are withdrawn: those people get a call
+ // Drafted replies to brand-new seller leads are withdrawn: those people get a call. Confirmations for booked appraisals are not caught.
  for(const a of state.actions){
   const p=findP(a.contactId);
-  if(a.status==='Awaiting review'&&['SMS','Email'].includes(a.type)&&p&&['seller','both'].includes(p.role)&&/appraisal|valuation|seller/i.test(a.title)&&!state.gvx.withdrawn[a.id]){
+  if(a.status==='Awaiting review'&&['SMS','Email'].includes(a.type)&&p&&['seller','both'].includes(p.role)&&/new seller|appraisal request|valuation request/i.test(a.title)&&!state.gvx.withdrawn[a.id]){
    state.gvx.withdrawn[a.id]=true;a.status='Withdrawn · seller leads are called';
    audit('policy','Draft withdrawn: '+a.title,'New seller leads are always a call from the agent. GeeVee does not draft or send them messages.');
   }
