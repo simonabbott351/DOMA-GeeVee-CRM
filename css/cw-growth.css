@@ -7,3 +7,7 @@
 .cw-gr-batch-row small{display:block;font-size:11px;color:#6b7f87;margin-top:2px}
 .cw-gr-aside{margin-top:12px}
 .cw-gr-pre{white-space:pre-wrap;font:12.5px/1.55 Inter,system-ui,sans-serif;background:#f7f9fa;border:1px solid var(--line);border-radius:10px;padding:14px;margin:0 0 12px;color:#1c2d35}
+/* Aside cards: the title is its own line and the buttons sit under it, whether or not the description is shown (Less text hides it). */
+.gv-aside-mini>b{display:block}
+.gv-aside-mini>.btn{margin:8px 6px 0 0;vertical-align:top}
+.gv-aside-mini>.btn+.btn{margin-left:0}
