@@ -17,8 +17,8 @@ const CW_PF_RANGES=[['1W','1W'],['2W','2W'],['1M','1M'],['3M','3M'],['6M','6M'],
 const CW_PF_FY=['FY 26-27 · Current','FY 25-26','FY 24-25','FY 23-24','FY 22-23'];
 
 /* ---------- /reports ---------- */
-const CW_PF_REPORTS=[['vendor','Vendor campaign report','Weekly update for a vendor: views, enquiries, inspections, offers and buyer feedback.'],['landlord','Landlord rental report','Leasing activity and applications for a landlord.'],['appraisal','Appraisal summary','Recent nearby sales and the estimated selling price range.'],['buyer','Buyer activity report','Who engaged with a listing and how.']];
-function cwPfReport(type,d){const x=cwDX(d),offers=(state.offers||[]).filter(o=>o.dealId===d.id),enq=state.cw.enquiries.filter(e=>e.dealId===d.id),msgs=state.messages.filter(m=>m.dealId===d.id),ohs=state.cw.openHomes.filter(o=>o.dealId===d.id),att=ohs.reduce((a,o)=>a+(o.attendees||[]).length,0);
+const CW_PF_REPORTS=[['vendor','Vendor campaign report','Weekly update for a vendor: views, enquiries, inspections, offers and buyer feedback.'],['appraisal','Appraisal summary','Recent nearby sales and the estimated selling price range.'],['buyer','Buyer activity report','Who engaged with a listing and how.']];
+function cwPfReport(type,d){const x=cwDX(d),offers=(state.offers||[]).filter(o=>o.dealId===d.id),enq=state.cw.enquiries.filter(e=>e.dealId===d.id),msgs=state.messages.filter(m=>m.dealId===d.id&&!enq.some(e=>e.msgId===m.id)),ohs=state.cw.openHomes.filter(o=>o.dealId===d.id),att=ohs.reduce((a,o)=>a+(o.attendees||[]).length,0);
  return{type,dealId:d.id,views:x.views,saves:x.saves,enquiries:enq.length+msgs.length,inspections:ohs.filter(o=>o.status==='Closed').length,attendees:att,offers:offers.length,best:offers.reduce((a,o)=>Math.max(a,o.amount),0),dom:x.dom,price:cwPrice(d),comps:x.comps||[],feedback:ohs.flatMap(o=>(o.attendees||[]).filter(a=>a.notes).map(a=>a.name+': '+a.notes))}}
 cwPage('/reports',{title:'Reports',group:'perf',render(){
  const type=cwF('pfr:type','vendor'),did=cwF('pfr:deal','');const pool=cwProps().filter(d=>type==='appraisal'?['Appraisal','Proposal','Authority','New lead','Connected'].includes(d.stage):CW_PF_LISTED.includes(d.stage)||d.stage==='Sold');
@@ -42,9 +42,9 @@ cwOn('cwPfRepEmail',x=>{const [t,id]=x.split('|');const d=findD(id);if(!d)return
 
 /* ---------- /kpi ---------- */
 const CW_PF_KPI=[['calls','Call Connects',true],['texts','Text Sent',false],['emails','Email Sent',false],['knocks','Door Knocks',false],['letters','Letter Drops',false],['posts','Social Media',false],['appraisals','Appraisals Completed',true],['listings','Listings Won',true],['sales','Sales Closed',true]];
-function cwPfKpiActual(k){const K=state.cw.kpi,ds=cwPfDeals(CW_ME);
- if(k==='calls')return (state.calls||[]).length+state.tasks.filter(t=>t.category==='Call'&&t.status==='Done').length;
- if(k==='appraisals')return ds.filter(d=>['Proposal','Authority','Listed','For sale','Sold'].includes(d.stage)).length+state.cw.events.filter(e=>e.kind==='Appraisal'&&Date.parse(e.start)<Date.now()).length;
+function cwPfKpiActual(k){const K=state.cw.kpi,ds=cwPfDeals(CW_ME);const since=Date.now()-({D:1,W:7,M:30,Y:365}[cwF('pfk:p',K.period||'W')]||7)*864e5;const inP=t=>{const n=Date.parse(t||'');return !n||n>=since};
+ if(k==='calls')return (state.calls||[]).filter(c=>inP(c.at)).length+state.tasks.filter(t=>t.category==='Call'&&t.status==='Done'&&inP(t.doneAt||t.at)).length;
+ if(k==='appraisals')return state.cw.events.filter(e=>e.kind==='Appraisal'&&Date.parse(e.start)<Date.now()&&Date.parse(e.start)>=since).length;
  if(k==='listings')return ds.filter(d=>CW_PF_LISTED.includes(d.stage)).length;
  if(k==='sales')return ds.filter(d=>d.stage==='Sold').length;
  return (K.manual||{})[k]||0}
@@ -76,7 +76,7 @@ cwPage('/commissions',{title:'Commissions',group:'perf',render(){const s=cwPfSta
 const CW_PF_BOARDS=[['sales','Sales'],['listings','Listings'],['appraisals','Appraisals'],['commission','Commission']];
 cwPage('/leaderboard/:board',{title:ctx=>'Leaderboard: '+(CW_PF_BOARDS.find(b=>b[0]===ctx.params.board)?.[1]||'Sales'),group:'perf',render(ctx){const b=CW_PF_BOARDS.find(x=>x[0]===ctx.params.board)?.[0]||'sales';
  const rows=cwPfAgentList().map(a=>({a,...cwPfStats(a.name)})).map(r=>({...r,score:b==='commission'?r.commission:r[b]})).sort((x,y)=>y.score-x.score);
- return `${cwHeader('Details',CW_PF_BOARDS.find(x=>x[0]===b)[1]+' leaderboard, this financial year.',cwGoBtn('Back to Leaderboard','/leaderboard/sales'),'Performance & reports')}
+ return `${cwHeader(CW_PF_BOARDS.find(x=>x[0]===b)[1]+' leaderboard','This financial year.',cwGoBtn('All boards','/leaderboard/sales'),'Performance & reports')}
  ${cwTabs('pflb',CW_PF_BOARDS,{active:b,route:v=>'/leaderboard/'+v})}
  <div class="card">${rows.map((r,i)=>`<div class="list-row" style="padding:13px 16px"><div class="number-circle" style="${i===0?'background:#fff3df;color:#a86a15':''}">${i+1}</div><div class="cw-who" style="flex:1">${cwAvatar(r.a.name)}<span><b>${h(r.a.name)}</b><small>${h(r.a.title)}</small></span></div><b class="num">${b==='commission'?cwMoney(r.score):r.score}</b>${cwGoBtn('Agent','/analytics/agent/'+r.a.id,'sm')}</div>`).join('')}</div>`},
  ai(ctx){return[{k:'info',t:'Counted from the record',b:'Listings, appraisals and sales come from the pipeline. Commission counts only settled or sold deals.'}]}});

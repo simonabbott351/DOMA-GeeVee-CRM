@@ -65,12 +65,12 @@ function cwD2Agents(){
  for(const s of D2_SOLD)cwD2MakeSold(s);
  /* the three seeded sales get a sold price, a date and a settlement */
  for(const [id,days,price] of [['D-2011',11,1476000],['D-2018',2,884000],['D-2029',13,1702000]]){const d=findD(id);if(!d||d.stage!=='Sold')continue;const x=cwDX(d);d2Fill(x,'soldPrice',price);d2Fill(x,'soldAt',d2Day(days));x.listedAt=d2At(days+35);x.dom=35;if(!x.views)x.views=160+cwHash(id)%200;if(!x.saves)x.saves=3+cwHash(id)%8;
-  if(!state.cw.settlements.some(s=>s.dealId===id))state.cw.settlements.push({id:'ST-D2-'+id,dealId:id,commission:Math.round(price*d.fee/100),settles:d2Day(-(60-days)),at:x.soldAt,agent:d2Agent(d)})}
+  if(!state.cw.settlements.some(s=>s.dealId===id))state.cw.settlements.push({id:'ST-D2-'+id,dealId:id,price,commission:Math.round(price*d.fee/100),settles:d2Day(-(60-days)),at:x.soldAt,agent:d2Agent(d),status:days>60?'Settled':'Pending',buyerId:(x.purchasers||[])[0]||'',vendorId:d.contactId,contractAt:x.soldAt,depositAt:days>=2?d2At(days-1,11,0):'',checklist:{deposit:days>=2,finance:true,inspection:true,settlementDate:true}})}
  for(const s of state.cw.settlements){const d=findD(s.dealId);if(d){d2Fill(s,'at',cwDX(d).soldAt||d2At(10));d2Fill(s,'agent',d2Agent(d))}}
 }
 
 /* ---------- 3. seller leads: every state of the 24-hour rule ---------- */
-const D2_LEAD_HOURS={'D-2001':2,'D-2016':3,'D-2002':21,'D-2025':26,'D-2030':30};
+const D2_LEAD_HOURS={'D-2001':2,'D-2002':21,'D-2025':26,'D-2030':30};
 function cwD2Leads(){
  for(const [id,hrs] of Object.entries(D2_LEAD_HOURS)){const d=findD(id);if(!d||d.stage!=='New lead')continue;const x=cwDX(d);if(x.called||x.slAction)continue;x.leadAt=d2Hours(hrs);delete x.reminded;delete x.escalated;delete x.escalatedAt;
   const s=d2SeedD(id);if(s&&d.lastChange===s.lastChange)d.lastChange=hrs<24?hrs+' hours ago':'1 days ago';
@@ -150,7 +150,7 @@ const D2_T_SELLER={
  lead:['Appraisal for {addr}',['Hello, could someone call me about an appraisal for {addr}? Thinking of selling {season}.','Hi {first}, happy to help. {agent} will call you today to find a time to come through.','Thanks. Afternoons are best, after 3.','Noted, after 3. Talk soon.','Great.']],
  proposal:['Following up on your proposal',['Thanks for sending the proposal for {addr}. Can we talk about the marketing budget?','Of course {first}. I can take you through the options and trim where it makes sense. Does tomorrow at 5 suit?','5 works. My partner will join the call.','Booked for 5. I will bring the comparable sales too.','Thanks, see you then.']],
  timing:['When to list {addr}',['We are still deciding when to list {addr}. What is the market doing in {suburb}?','Hi {first}, the last three sales near you went {trend}. I will send the figures.','Please do. Can you also tell us what an auction would cost?','Sent, with the auction and private sale options side by side.','Got it, we will read it tonight.']],
- authority:['Authority for {addr}',['We got the authority through. Before we sign, how long is the exclusive period?','Hi {first}, 90 days exclusive, then 60 days continuing. Happy to walk through any clause.','OK. Can we sign it on Thursday when you are here?','Thursday is fine. Bring photo ID, I need to sight it before we go live.','Will do.']],
+ authority:['Authority for {addr}',['The authority came through. Before I sign, how long is the exclusive period?','Hi {first}, 90 days exclusive, then 60 days continuing. Happy to walk through any clause.','Thanks. I have signed it on my phone just now. What happens next?','Great, it is with me to countersign today. I will sight your photo ID when I am there Thursday, then we go live.','Perfect, see you Thursday.']],
  open:['Open home this Saturday',['Are there any inspections booked for {addr} this weekend? We need to be out.','Hi {first}, Saturday {time} to {time2}, I will be there from 15 minutes before.','Thanks. The dog will be at my sister\'s place.','Perfect. I will text you the numbers afterwards.','Thanks.']],
  campaign:['Campaign update for {addr}',['How did the open home go on Saturday? Any feedback on the price?','Hi {first}, {n} groups through, two asked for the contract. I will call you tonight with the detail.','Good. Call after 7 please.','After 7 it is.','Thanks.']],
  sold:['Settlement for {addr}',['Just checking what we need to do before settlement on {addr}.','Hi {first}, your conveyancer handles the transfer. We do the final inspection with the buyer the day before.','Thanks, and do we need to leave the keys with you?','Yes, drop them to the office on the morning of settlement.','Will do.']],
@@ -172,8 +172,8 @@ function cwD2Messages(){const live=d2LiveDeals();state.messages.forEach((m,i)=>{
   let tpl;if(asSeller){const S=d?d.stage:'';tpl=D2_T_SELLER[!d?(k%2?'lead':'timing'):['New lead','Connected'].includes(S)?'lead':S==='Appraisal'?'timing':S==='Proposal'?'proposal':S==='Authority'?'authority':S==='Listed'?'campaign':S==='For sale'?(k%2?'open':'campaign'):S==='Sold'?'sold':'lost']}
   else tpl=D2_T_BUYER[k%D2_T_BUYER.length];
   const len=[2,3,3,4,5][k%5];const lines=tpl[1].slice(0,len);m.subject=d2Fmt(tpl[0],v);
-  const daysAgo=i%6===0?0:i%6===1?1:2+(k%9);const endAt=d2At(daysAgo,8+(k%10),(k*7)%60);m.at=endAt;
-  m.thread=lines.map((t,j)=>{const at=new Date(Date.parse(endAt)-(lines.length-1-j)*(3+k%5)*3600e3).toISOString();return{from:j%2?'us':'them',text:d2Fmt(t,v),when:d2When(at),at}});
+  const daysAgo=i%6===0?0:i%6===1?1:2+(k%9);const endH=12+(k%6);const endAt=d2At(daysAgo,endH,(k*7)%60);m.at=endAt;const gap=Math.max(1,Math.min(3+k%5,Math.floor((endH-8)/Math.max(1,lines.length-1))));
+  m.thread=lines.map((t,j)=>{const at=new Date(Date.parse(endAt)-(lines.length-1-j)*gap*3600e3).toISOString();return{from:j%2?'us':'them',text:d2Fmt(t,v),when:d2When(at),at}});
   const lastT=m.thread[m.thread.length-1];m.last=lastT.text;m.time=d2Short(endAt);if(lastT.from==='us')m.unread=false;
   if(d&&!asSeller&&m.dealId!==d.id)m.dealId=d.id;
   for(const e of state.cw.enquiries.filter(e=>e.msgId===m.id)){if(e.comments===seed.last)e.comments=m.last;e.received=m.at;if(m.dealId&&e.dealId!==m.dealId)e.dealId=m.dealId}})}
@@ -181,7 +181,7 @@ function cwD2Messages(){const live=d2LiveDeals();state.messages.forEach((m,i)=>{
 /* ---------- 4. contacts: notes, reminders, links, files, history, portal ---------- */
 const D2_CT_FULL=['C-1001','C-1002','C-1003','C-1005','C-1006','C-1007','C-1008','C-1010','C-1012','C-1013','C-1015','C-1016','C-1017','C-1019','C-1021','C-1023','C-1026','C-1027','C-1028','C-1031','C-1033','C-1037','C-1039','C-1042','C-1044','C-1046','C-1048','C-1052','C-1053','C-1059'];
 const D2_PORTAL=['C-1007','C-1016','C-1028','C-1031','C-1039','C-1044','C-1052','C-1005','C-1019','C-1027'];
-const D2_N_SELLER=[['Contact','Called about timing. Thinking of selling {season}, wants to know what {suburb} is doing first.'],['Appointment','Appraisal walk-through booked. Bring the {suburb} comparable sales and the campaign options.'],['Action Required','Asked for the marketing costs in writing before deciding. Send the proposal by email.'],['Follow Up','Partner needs to be on the next call. Prefers evenings after 6.'],['Review','Reviewed the proposal together. Leaning towards auction, wants a four week campaign.']];
+const D2_N_SELLER=[['Contact','Enquiry noted: thinking of selling {season}, wants to know what {suburb} is doing first.'],['Appointment','Appraisal walk-through booked. Bring the {suburb} comparable sales and the campaign options.'],['Action Required','Asked for the marketing costs in writing before deciding. Send the proposal by email.'],['Follow Up','Partner needs to be on the next call. Prefers evenings after 6.'],['Review','Reviewed the proposal together. Leaning towards auction, wants a four week campaign.']];
 const D2_N_BUYER=[['Contact','Pre-approved to {pmax}. Looking in {suburbs}, needs {beds} bedrooms and a yard.'],['Review','Inspected {addr}. Liked the kitchen, worried about the main road.'],['Action Required','Send the Section 32 for {addr} and the open home times for Saturday.'],['Appointment','Second viewing of {addr} booked with the parents. Wants a building inspection first.'],['Follow Up','Call back after the weekend. Renting until March so no rush on settlement.']];
 const D2_BANKS=['ANZ','NAB','Bank Australia','Bendigo Bank','ME Bank','CommBank'];
 function cwD2Contact(p,full){const x=cwPX(p),k=cwHash(p.id),agent=p.owner||CW_ME,buyer=cwCtIsBuyer(p)&&p.role!=='seller';const own=state.deals.find(d=>d.contactId===p.id);const live=d2LiveDeals().filter(d=>d.contactId!==p.id);const pick=cwPick(p.id+'l',live)||live[0];const pr=x.prefs||{};
@@ -192,8 +192,8 @@ function cwD2Contact(p,full){const x=cwPX(p),k=cwHash(p.id),agent=p.owner||CW_ME
  d2Add(x.history,{id:'H-D2-'+p.id+'-3',at:d2At(2+k%5,9,40),by:buyer?'GeeVee':agent,what:buyer?'Buyer preferences updated from an enquiry':'Property record linked: '+v.addr});
  if(x.portal||D2_PORTAL.includes(p.id)){if(!x.portal&&buyer)x.portal=true;d2Fill(x,'portalAt',d2At(20+k%100,19,10));if(!x.searches)x.searches=2+k%6;if(!x.saved)x.saved=1+k%4;if(!x.sessions)x.sessions=3+k%7;d2Fill(x,'lastSeen',d2At(k%6,20,15))}
  if(!full)return;
- const pool=buyer?D2_N_BUYER:D2_N_SELLER;const n=2+k%3;for(let i=0;i<n;i++){const [kind,text]=pool[(k+i)%pool.length];d2Add(x.notes,{id:'CN-D2-'+p.id+'-'+i,text:d2Fmt(text,v),kind,by:agent,at:d2At(2+i*5+k%3,9+i,(k*7)%60)})}d2SortDesc(x.notes);
- const rid='RM-D2-'+p.id;if(!x.reminders.some(r=>r.id===rid)){const done=k%5<2;const when=done?d2At(2+k%5,10,0):new Date(Date.now()+(1+k%7)*864e5);const dt=new Date(when);dt.setHours(10,0,0,0);const text=d2Fmt(buyer?['Call {first} after the open home at {addr}','Send {first} new listings in {suburb}','Check {first} received the Section 32 for {addr}'][k%3]:['Call {first} about listing timing','Send {first} the updated appraisal figures','Check {first} has signed the authority'][k%3],v);const tid='T-D2-RM-'+p.id;
+ const stageRank={'New lead':1,Connected:1,Appraisal:2,Proposal:4,Authority:5,Listed:5,'For sale':5,Sold:5,Lost:3}[own?.stage]||0;const pool=buyer?D2_N_BUYER:D2_N_SELLER.filter((e,ix)=>ix<=Math.max(0,stageRank-1));const n=Math.min(pool.length,2+k%3);for(let i=0;i<n;i++){const [kind,text]=pool[(k+i)%pool.length];d2Add(x.notes,{id:'CN-D2-'+p.id+'-'+i,text:d2Fmt(text,v),kind,by:agent,at:d2At(2+i*5+k%3,9+i,(k*7)%60)})}d2SortDesc(x.notes);
+ const rid='RM-D2-'+p.id;if(!x.reminders.some(r=>r.id===rid)){const done=k%5<2;const when=done?d2At(2+k%5,10,0):new Date(Date.now()+(1+k%7)*864e5);const dt=new Date(when);dt.setHours(10,0,0,0);const text=d2Fmt(buyer?['Call {first} after the open home at {addr}','Send {first} new listings in {suburb}','Check {first} received the Section 32 for {addr}'][k%3]:(['Authority','Listed','For sale'].includes(own?.stage)?['Check {first} has signed the authority','Call {first} about the campaign','Send {first} the updated appraisal figures']:own?.stage==='Proposal'?['Call {first} about the proposal','Send {first} the updated appraisal figures','Call {first} about listing timing']:['Call {first} about listing timing','Call {first} about listing timing','Send {first} the appraisal figures'])[k%3],v);const tid='T-D2-RM-'+p.id;
   if(!findT(tid))state.tasks.push({id:tid,contactId:p.id,dealId:own?.id||'',title:text,due:cwLocalDay(dt)===cwLocalDay()?'Today':cwDate(dt),dueISO:cwLocalDay(dt),dueTime:'10:00',priority:'Normal',category:'Follow up',status:done?'Done':'Open',origin:'Reminder on contact'});
   x.reminders.push({id:rid,text,at:dt.toISOString(),taskId:tid})}
  if(pick&&!x.linked.some(l=>l.dealId===pick.id)&&!(own&&own.id===pick.id))x.linked.push({dealId:pick.id,rel:'Interested'});
@@ -305,6 +305,7 @@ function cwD2Dates(){
  calls.forEach((r,i)=>{const [contactId,by,days,hh,mm,summary,outcome]=r;const p=findP(contactId);if(!p)return;const at=d2At(days,hh,mm);if(d2Add(state.calls,{id:'CALL-D2-'+(i+1),contactId,summary,outcome,when:d2When(at),at,by,recording:false})&&!noCall.has(contactId)){const s=d2SeedP(contactId);if(!s||p.callStatus===s.callStatus)p.callStatus='contacted';if(!s||p.lastContact===s.lastContact)p.lastContact=d2When(at)}});
  d2SortDesc(state.calls);
  state.actions.forEach((a,i)=>d2Fill(a,'at',d2ParseWhen(a.created,i)));
+ (state.activity||[]).forEach((e,i)=>{if(!e.at&&e.when&&e.when!=='Just now')e.at=d2ParseWhen(e.when,i)});
  state.tasks.forEach((t,i)=>d2Fill(t,'at',d2At(1+i%4,9,i%60)));
  for(const e of state.cw.events)d2Fill(e,'at',d2At(7));
  for(const o of state.cw.openHomes)for(const a of o.attendees||[])d2Fill(a,'at',o.day);
@@ -317,6 +318,9 @@ persist=function(){try{cwD2Stamp()}catch(e){}return cwD2PrevPersist()};
 
 /* three seeded drafts were task notes, not messages (24 Nov 2026); replace them where a browser still holds the old words */
 function cwD2Words(){
+ for(const dl of state.deals){const x=dl.cw;if(x&&x.idSighted&&!x.idVerified)x.idVerified=x.idSighted}
+ /* Helen Vu is a current vendor: her new lead at 44 Smith Street was discussed on the vendor call, so it is off the 24-hour clock */
+ {const d=findD('D-2016');if(d){cwDX(d).called=true;if(d.why==='New seller lead')d.why='Mentioned on the vendor call: thinking of selling 44 Smith Street too'}}
  /* comparables picked before 24 Nov 2026 carry no key features; add them from the sales record by address */
  if(typeof cwJnFeatures==='function')for(const dl of state.deals){const x=dl.cw;if(!x||!Array.isArray(x.comps))continue;for(const c of x.comps){if(Array.isArray(c)&&c.length===3){const sale=(state.cw.sales||[]).find(s=>String(c[0]).startsWith(s.address));if(sale)c.push(cwJnFeatures(sale))}}}
  /* sales records gained key features (cars, land, internal area, type) for the Property Price Statement */

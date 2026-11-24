@@ -210,3 +210,5 @@ function cwFindPage(text){const l=text.toLowerCase().replace(/[^a-z0-9 ]/g,' ').
   if(/ tab$/.test(n)&&!/tab/.test(l))s-=5;if(/\b1\b|sample/.test(e.route)&&!/detail|profile/.test(l))s-=3;if(s>score){score=s;best=e}}
  for(const g of CW_GROUPS)for(const [n,r] of g.pages){const nn=n.toLowerCase();if(l.includes(nn)&&nn.length+60>score){score=nn.length+60;best={name:n,route:r}}}
  return score>0?best:null}
+/* one count of enquiries for a property: enquiry records plus conversations not already linked to one */
+function cwEnqCount(d){if(!d||!state.cw)return 0;const enq=(state.cw.enquiries||[]).filter(e=>e.dealId===d.id);const msgs=(state.messages||[]).filter(m=>m.dealId===d.id&&!enq.some(e=>e.msgId===m.id));return enq.length+msgs.length}

@@ -63,3 +63,7 @@ The Demo guide (`#/demo`) walks a presenter through 22 steps with an amber ring 
 **Training.** "Learn it click by click" on the start page is the training cut: the same five chapters, every click explained in the agent's own terms, a visible cursor that travels to each target, and a pause on each result. Chapter chips on the start page jump to a chapter.
 
 **The films.** `npm run film` records the short version as `dist/film.mp4`; `node tools/film.js --train --chapter 1` records one training chapter as `dist/train-1.mp4` (five chapters, about five minutes each); `--full` records the whole story. Each is a screen capture of watch mode with the narration mixed in, 1600 by 900, playable anywhere. Needs ffmpeg.
+
+## Flow audit
+
+`docs/AUDIT-2026-11-24.md` records the 24 November 2026 flow audit: what the four journey audits found, what changed, what is left for the build, and the Victorian rules verified against Consumer Affairs Victoria that day.

@@ -35,7 +35,8 @@ cwOn('cwJ3Call',id=>{const [did,pid]=id.split('|');const d=findD(did),p=findP(pi
 /* after an open home session closes: post-visit texts (A2, opted-out excluded), vendor report (A2), buyers ranked */
 function cwJ3AfterOpenHome(o){const d=findD(o.dealId);if(!d)return;const p=findP(d.contactId),x=cwDX(d);cwJnSnap();const done=[];o.smsDone??={};let n=0,skip=0;
  for(const a of o.attendees||[]){if(o.smsDone[a.id]||!a.temp||a.temp==='No Interest')continue;const b=findP(a.contactId);if(!b||cwOptedOut(b)||!b.phone){skip++;continue}
-  addAction({type:'SMS',title:'Post-visit text to '+b.name,body:`Hi ${cwJ3First(b)}, thanks for coming through ${d.address} today.${a.contract?' The contract is on its way.':''}${a.temp==='HOT'?' I will call you tomorrow about next steps.':' Any questions, just reply.'} ${cwJ3Me()}, Collings. Reply STOP to opt out.`,contactId:b.id,dealId:d.id,tier:'A2',j3:'postVisit'});o.smsDone[a.id]=true;n++}
+  if(state.actions.some(z=>z.status==='Awaiting review'&&z.dealId===d.id&&z.contactId===b.id&&/^Post-visit text/.test(z.title))){o.smsDone[a.id]=true;continue}
+  addAction({type:'SMS',title:'Post-visit text to '+b.name,body:`Hi ${cwJ3First(b)}, thanks for coming through ${d.address} ${typeof cwOhDayWord==='function'?cwOhDayWord(o):'today'}.${a.contract?' The contract is on its way.':''}${a.temp==='HOT'?' I will call you tomorrow about next steps.':' Any questions, just reply.'} ${cwJ3Me()}, Collings. Reply STOP to opt out.`,contactId:b.id,dealId:d.id,tier:'A2',j3:'postVisit'});o.smsDone[a.id]=true;n++}
  if(n)done.push(['Drafted '+n+' post-visit text'+(n>1?'s':'')+(skip?' ('+skip+' skipped: opted out or no mobile)':'')+'. They are on Today for approval','/app/today']);
  else done.push(['No post-visit texts to draft'+(skip?' ('+skip+' attendee'+(skip>1?'s':'')+' opted out or without a mobile)':''),'/open-home/'+o.id]);
  const att=o.attendees||[],hot=att.filter(a=>a.temp==='HOT').length,warm=att.filter(a=>a.temp==='WARM').length,contracts=att.filter(a=>a.contract).length,offers=cwJ3Offers(d).filter(cwJ3Live),fb=att.filter(a=>a.notes).map(a=>a.name+': '+a.notes);
@@ -84,6 +85,7 @@ function cwJ3RecordOffer(d,b,o,source){const x=cwDX(d),v=findP(d.contactId),done
  const pend=state.actions.find(a=>a.j3==='present'&&a.dealId===d.id&&a.status==='Awaiting review');
  if(pend){pend.title='Present '+(others.length+1)+' offers on '+d.address+' to '+vn;pend.body=body;pend.j3Offer=offer.id;done.push(['Added it to the "Present offers to '+vn+'" approval already on Today (protected)','/app/today'])}
  else{addAction({type:'Offer',title:'Present '+b.name+'\'s offer of '+cwMoney(o.amount)+' to '+vn,body,contactId:v?.id||'',dealId:d.id,tier:'A3',j3:'present',j3Offer:offer.id});done.push(['"Present offer to '+vn+'" is on Today as a protected approval','/app/today'])}
+ if(typeof cwJ3EnsurePresent==='undefined'){}
  state.cw.notifications.unshift({id:cwId('NT'),title:'Offer received: '+d.address,body:b.name+' offered '+cwMoney(o.amount)+'. Present it from Today.',kind:'OFFER',priority:'High',read:false,at:cwNowISO(),route:'/properties/'+d.id+'?tab=enquiries'});
  return{offer,done}}
 const cwJ3PrevApply=cwJnApplyCall;
@@ -108,9 +110,11 @@ cwOn('cwJ3OfferSave',id=>{const d=findD(id);const p=findP(document.getElementByI
  if(!items.some(i=>i.k==='offer'))items.unshift({k:'offer',t:'Record the offer',s:'',offer:o,dealId:d.id});
  const cid=cwJnApplyCall(items,p,null,text);persist();ui.modal={type:'cw',name:'jnDid',arg:cid};render()});
 
+/* the base offer card's Present button: one protected present card per property, then its preview */
+function cwJ3EnsurePresent(d){const v=findP(d.contactId),vn=v?.name||'the vendor';const live=cwJ3Offers(d).filter(cwJ3Live);if(!live.length)return null;let a=state.actions.find(z=>z.j3==='present'&&z.dealId===d.id&&z.status==='Awaiting review');const x=cwDX(d);const body=live.map(o=>cwPName(o.buyerId)+' offers '+cwMoney(o.amount)+' for '+d.address+', '+d.suburb+'. Deposit '+(o.deposit||'to confirm')+'. Settlement '+(o.settlement||'to confirm')+'. '+(o.finance||'Finance to confirm')+'.'+(o.conditions?' Conditions: '+o.conditions+'.':'')+(x.priceLow&&o.amount<x.priceLow?' Below the advertised range.':'')).join(' ')+' Advertised: '+cwPrice(d)+'. Approve to present every offer to '+vn+' in writing. GeeVee drafts the email for you.';if(a){a.title='Present '+live.length+(live.length===1?' offer on ':' offers on ')+d.address+' to '+vn;a.body=body}else a=addAction({type:'Offer',title:'Present '+(live.length===1?cwPName(live[0].buyerId)+'\'s offer of '+cwMoney(live[0].amount):live.length+' offers on '+d.address)+' to '+vn,body,contactId:v?.id||'',dealId:d.id,tier:'A3',j3:'present',j3Offer:live[0].id});return a}
 /* ---------- 1c. Presenting and the vendor decision ---------- */
 function cwJ3OffersEmail(d,v,offers){const x=cwDX(d);const best=Math.max(...offers.map(o=>o.amount));
- return `Hi ${cwJ3First(v)},\n\nHere are the written offers on ${d.address}, ${d.suburb}, side by side.\n\n${offers.map((o,i)=>`${i+1}. ${cwPName(o.buyerId)}: ${cwMoney(o.amount)}${o.amount===best?' (highest)':''}\n   Deposit ${o.deposit||'to confirm'}. Settlement ${o.settlement||'to confirm'}. ${o.finance||'Finance to confirm'}.${o.conditions?' Conditions: '+o.conditions+'.':' No other conditions.'}`).join('\n\n')}\n\nAdvertised price: ${cwPrice(d)}.${x.expect?' Your expectation at the appraisal: '+cwMoney(x.expect)+'.':''}\n\nYou can accept one, counter, or reject. Nothing is binding until contracts are exchanged. Call me and I will record your decision.\n\n${d.owner||CW_ME}\nCollings Real Estate`}
+ return `Hi ${cwJ3First(v)},\n\nHere are the written offers on ${d.address}, ${d.suburb}, side by side.\n\n${offers.map((o,i)=>`${i+1}. ${cwPName(o.buyerId)}: ${cwMoney(o.amount)}${o.amount===best?' (highest)':''}${x.priceLow&&o.amount<x.priceLow?' (below the advertised range)':''}\n   Deposit ${o.deposit||'to confirm'}. Settlement ${o.settlement||'to confirm'}. ${o.finance||'Finance to confirm'}.${o.conditions?' Conditions: '+o.conditions+'.':' No other conditions.'}`).join('\n\n')}\n\nAdvertised price: ${cwPrice(d)}.${x.expect?' Your expectation at the appraisal: '+cwMoney(x.expect)+'.':''}\n\nYou can accept one, counter, or reject. Nothing is binding until contracts are exchanged. Call me and I will record your decision.\n\n${d.owner||CW_ME}\nCollings Real Estate`}
 function cwJ3Presented(d,offerId){const v=findP(d.contactId);const now=cwNowISO();const offers=cwJ3Offers(d).filter(cwJ3Live);
  for(const o of offers){if(!o.presentedAt){if(o.status==='New')o.status='Presented';o.presentedAt=now;(o.history??=[]).push('Presented to '+(v?.name||'the vendor')+' '+cwDateTime(now))}}
  cwJ3X(d).presentedAt=now;cwJ3WithdrawPresent(d,'All live offers were presented together');
@@ -232,7 +236,7 @@ function cwJ3Sold(agr){agr.j3Sold=true;const d=findD(agr.dealId);if(!d)return;co
  let m=0;for(const e of cwJ3Buyers(d).filter(e=>e.p.id!==b?.id&&!e.out&&e.p.phone).slice(0,5)){addAction({type:'SMS',title:'Other homes for '+e.p.name+' ('+d.address+' sold)',body:`Hi ${cwJ3First(e.p)}, ${d.address} has sold. We have other homes coming up in ${d.suburb} and nearby that may suit you. Want me to send them through? ${cwJ3Me()}, Collings. Reply STOP to opt out.`,contactId:e.p.id,dealId:d.id,tier:'A2',j3:'otherHomes'});m++}
  if(m)done.push(['Drafted "we have other homes" texts to '+m+' buyer'+(m>1?'s':'')+' who missed out. They are on Today for approval','/app/today']);
  if(v&&!cwOptedOut(v)&&v.phone)addAction({type:'SMS',title:'Tell '+v.name+' the contract is signed',body:`Hi ${cwJ3First(v)}, both parties have signed. ${d.address} is sold for ${cwMoney(price)}. Deposit due ${cwDate(depDue)}, settlement ${cwDate(setDay)}. I will keep you posted at each step. ${cwJ3Me()}, Collings.`,contactId:v.id,dealId:d.id,tier:'A2'});
- state.tasks.filter(t=>t.status==='Open'&&t.dealId===d.id&&/decision on the offers|buyers to call first|after open home|counter offer/i.test(t.title)).forEach(t=>t.status='Done');
+ state.tasks.filter(t=>t.status==='Open'&&t.dealId===d.id&&!/publish|settle|deposit|finance|cooling|inspection due|anniversary|review/i.test(t.title)).forEach(t=>t.status='Done');
  state.cw.notifications.unshift({id:cwId('NT'),title:'Sold: '+d.address+' for '+cwMoney(price),body:'Contract signed by both parties. Settlement '+cwDate(setDay)+'. Checklist and reminders are on Today.',kind:'SOLD',priority:'High',read:false,at:now.toISOString(),route:'/properties/'+d.id});
  cwJ3WithdrawPresent(d,'Sold');
  audit('auto','Sold: '+d.address,done.map(z=>z[0]).join('. '));
@@ -299,7 +303,7 @@ cwJnSteps=function(d){const j=cwJ3PrevSteps(d);if(!cwJ3Sale(d))return j;const x=
  else if(pendPresent)j.next='"Present offer to '+vf+'" is on Today for your approval (protected).';
  else if(live.some(o=>o.presentedAt))j.next='Offers presented to '+vf+'. Record the decision when they call back.';
  else if(live.length)j.next=live.length+' offer'+(live.length>1?'s':'')+' to present to '+vf+'. Approve it on Today.';
- else if(!s.buyersCalledAt){const top=cwJ3Buyers(d).filter(b=>!b.out).slice(0,2).map(b=>b.p.name);j.next='Live. Call the buyers to call first'+(top.length?': '+top.join(', '):'')+'.'}
+ else if(!s.buyersCalledAt){const top=cwJ3Buyers(d).filter(b=>!b.out).slice(0,2).map(b=>b.p.name);j.next='Live. Call these buyers first'+(top.length?': '+top.join(', '):'')+'.'}
  else j.next=x.auctionAt?'Live. Auction '+cwDateTime(x.auctionAt)+'. Enquiries, open homes and offers feed Today.':'Live. Enquiries, open homes and offers feed Today.';
  j.j3={offers,agr,st};return j};
 const cwJ3PrevStrip=cwJnStrip;

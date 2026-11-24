@@ -29,7 +29,7 @@ const cwRulePrevOpen=cwOpen;
 cwOpen=function(route){if(cwParse(route).path==='/'){navigate('today');return}return cwRulePrevOpen(route)};
 {const e=CW_INDEX.find(x=>x.route==='/');if(e)e.name='Dashboard (now Today)'}
 function cwRuleTodayAside(){const ds=cwProps();const st=['New','Connected','Appraisal','Listed','For Sale','Sold'];const stageOf=d=>cwDX(d).longTerm?'Long Term':CW_PROSPECT_STAGE[d.stage]||'New';
- const target=state.cw.settings.gciTarget||0,earned=state.cw.settlements.reduce((a,s)=>a+s.commission,0);const slow=ds.filter(d=>d.stage==='For sale'&&cwDX(d).dom>40);const leads=cwRuleOpenLeads(),over=leads.filter(d=>cwRuleLeft(d)<=0);
+ const target=state.cw.settings.gciTarget||0,earned=state.cw.settlements.filter(s=>{const d=findD(s.dealId);return !s.agent||s.agent===CW_ME||(d&&d.owner===CW_ME)}).reduce((a,s)=>a+(s.commission||0),0);const slow=ds.filter(d=>d.stage==='For sale'&&cwDX(d).dom>40);const leads=cwRuleOpenLeads(),over=leads.filter(d=>cwRuleLeft(d)<=0);
  return `<div class="gv-aside-mini cw-today-dash"><b>Your pipeline</b><div class="cw-today-stages">${st.map(s=>`<button type="button" data-action="cwGo" data-id="/prospects"><b>${ds.filter(d=>stageOf(d)===s).length}</b><span>${s}</span></button>`).join('')}</div>
  <div class="cw-today-line"><span>Seller leads to call</span><b>${leads.length}${over.length?` <span class="tag red">${over.length} past 24h</span>`:''}</b></div>
  <div class="cw-today-line"><span>Listings over 40 days</span><b>${slow.length}</b></div>

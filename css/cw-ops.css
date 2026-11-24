@@ -41,3 +41,6 @@
  #modal-layer .card .card-head{flex-wrap:wrap;gap:8px}
  .cw-tr-size{flex-wrap:wrap}.cw-tr-size span{flex:1 1 100%}
 }
+
+/* phone: the GeeVee bar sits above the dock, menus and chips stay inside the screen */
+@media(max-width:800px){body .gv-assistant-bar{bottom:calc(72px + env(safe-area-inset-bottom))}.gvc-menu-wrap{position:relative}.gvc-menu{left:0;right:auto;max-width:calc(100vw - 48px)}.gv-chat-chips,.chips,.gv-suggest{flex-wrap:wrap;overflow:visible}.cw-cal-toolbar,.cw-toolbar,.toolbar{flex-wrap:wrap}}
