@@ -802,3 +802,4 @@ button,select,input,textarea{font-family:inherit}
 @media(max-width:390px){.gv-assistant-btn.gv-send{width:33px}.gv-expand{width:33px}.gv-assistant-input input{font-size:12px}.gv-day-totals{gap:7px}.gv-day-welcome h2{font-size:18px}}
 
 .gv-call-auto-note{background:#eaf7f2;border:1px solid #d3e9dd;border-radius:9px;padding:11px 13px;font-size:12px;color:#2d6a53;margin:12px 0} .dialog .check-list label:has(#call-save-note),.dialog .check-list label:has(#call-add-task){display:none} .gv-day-totals b{color:#087d85;font-size:14px;margin-right:4px}
+.gv-compact-item.expanded .gv-compact-excerpt{display:none}

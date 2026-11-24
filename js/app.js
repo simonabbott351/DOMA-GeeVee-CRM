@@ -1056,7 +1056,7 @@ function gvCOpenMenu(x){
 function gvCContextThread(m){
  const latest=gvCLatestClient(m);
  const ack=gvCHasAcknowledgement(m);
- return `<div class="gvc-copy"><div class="gvc-mini-label">${h(m.channel||'Message')} from ${h(gvCMessageName(m))}${m.time?' · '+h(m.time):''}</div><p>“${h(latest)}”</p></div>
+ return `<div class="gvc-copy"><div class="gvc-mini-label">Their message${m.time?' · '+h(m.time):''}</div><p>“${h(latest)}”</p></div>
  ${ack?`<div class="gvc-previous">${ico('check','sm')} Acknowledgement already sent · GeeVee will not repeat it</div>`:''}
  ${gvCButton(ui.gvCompactHistory===m.id?'Hide conversation':'View conversation','gvCHistory',m.id,'sm ghost')}
  ${ui.gvCompactHistory===m.id?`<div class="gvc-history"><div class="gvc-mini-label">Conversation history</div>${(m.thread||[]).map(t=>`<div class="gvc-thread-row"><b>${t.from==='us'?'Agency':'Client'}</b><span>${h(t.text||'')}</span></div>`).join('')}</div>`:''}`;
@@ -1072,40 +1072,37 @@ function gvCInlineMessage(m){
  ${edit?`<textarea class="gvc-editor" id="day-edit-${h(m.id)}" aria-label="Edit proposed message">${h(copy)}</textarea>`:`<p>${h(copy)}</p>`}</div></div>
  ${gvCCardRecommendation(gvCAdviceForMessage(m))}
  <div class="gvc-actions">${edit?gvCButton('Save changes','dayReplySave',m.id,'primary')+gvCButton('Cancel','dayReplyCancel',m.id,''):seller&&ack?gvCButton('Call '+gvCFirst(m.contactId),'gvCCall',`msg:${m.id}`,'primary')+gvCButton('Approve & Send','dayReplyApprove',m.id,'')+gvCButton('Edit','dayReplyEdit',m.id,''):gvCButton('Approve & Send','dayReplyApprove',m.id,'primary')+gvCButton('Edit','dayReplyEdit',m.id,'')}${gvCOpenMenu({kind:'message',key:'msg:'+m.id,ref:m})}</div>
- ${schedule?`<div class="gvc-inline-panel"><b>Bring this back for review</b><div class="gvc-actions">${gvCButton('Tomorrow','dayReplyTomorrow',m.id,'sm')}${gvCButton('Next week','dayReplyWeek',m.id,'sm')}${gvCButton('Cancel','dayReplyCancelSchedule',m.id,'sm')}</div><small>No outbound send will be scheduled.</small></div>`:''}
- <div class="gvc-quiet-note">Prototype: approvals are simulated; no message is sent.</div></div>`;
+ ${schedule?`<div class="gvc-inline-panel"><b>Bring this back for review</b><div class="gvc-actions">${gvCButton('Tomorrow','dayReplyTomorrow',m.id,'sm')}${gvCButton('Next week','dayReplyWeek',m.id,'sm')}${gvCButton('Cancel','dayReplyCancelSchedule',m.id,'sm')}</div><small>No outbound send will be scheduled.</small></div>`:''}</div>`;
 }
 function gvCActionCard(a){
  const m=a.messageId?getMsg(a.messageId):null,external=['SMS','Email','Portal reply','Portal enquiry'].includes(a.type),edit=ui.inlineEditing===a.id,confirm=ui.inlineConfirming===a.id,schedule=ui.inlineScheduling===a.id;
  const d=findD(a.dealId);
- const context=m?gvCContextThread(m):`<div class="gvc-copy"><div class="gvc-mini-label">${a.type==='eSign'?'Signing request':'Prepared action'} · ${h(personName(a.contactId))}</div><p>${h(a.title)}${d?' · '+h(d.address):''}</p></div>`;
- const title=external?'GeeVee’s proposed reply':a.type==='eSign'?'GeeVee prepared the signing package':'GeeVee prepared this action';
+ const context=m?gvCContextThread(m):`<div class="gvc-copy"><div class="gvc-mini-label">${a.type==='eSign'?'Signing request':h(a.type||'Action')}</div><p>${h(a.title)}${d?' · '+h(d.address):''}</p></div>`;
+ const title=a.type==='eSign'?'Signing package':'GeeVee\x27s draft';
  const note=a.tier==='A3'?'Protected action: verify all terms, recipients and the actual document before authorising.':external&&!m?'The original enquiry is not linked in this sample. Verify its source and the recipient before any real send.':external?'Check the recipient and wording before sending.':'Review any material change; routine CRM notes are saved automatically.';
  return `<div class="gvc-content"><div class="gvc-message-grid"><div>${context}</div><div class="gvc-response"><div class="gvc-mini-label">${h(title)}</div>${edit?`<textarea id="edit-${h(a.id)}" class="gvc-editor" aria-label="Edit GeeVee draft">${h(a.body)}</textarea>`:`<p>${h(a.body)}</p>`}</div></div>
  ${gvCCardRecommendation(note)}
  <div class="gvc-actions">${edit?gvCButton('Save changes','quickSave',a.id,'primary')+gvCButton('Save & review','quickSaveApprove',a.id,'')+gvCButton('Cancel','quickCancelEdit',a.id,''):gvCButton(external?'Approve & Send':a.type==='eSign'?'Review signing':'Approve & Continue','quickApprove',a.id,'primary')+gvCButton('Edit','quickEdit',a.id,'')}${gvCOpenMenu({kind:'action',key:'action:'+a.id,ref:a})}</div>
  ${schedule?`<div class="gvc-inline-panel"><b>When should this return?</b><div class="gvc-actions">${gvCButton('Tomorrow','quickSnoozeTomorrow',a.id,'sm')}${gvCButton('Next week','quickSnoozeWeek',a.id,'sm')}<input type="date" id="date-${h(a.id)}" aria-label="Review date">${gvCButton('Use date','quickSnoozeDate',a.id,'sm')}${gvCButton('Cancel','quickCancelSchedule',a.id,'sm')}</div><small>Only the review is postponed, not an external send.</small></div>`:''}
- ${confirm?`<div class="gvc-inline-panel gvc-protected"><b>Confirm protected review</b><p>Check the complete commercial terms, document and recipients. This only records a demo review.</p><label><input type="checkbox" id="protect-${h(a.id)}"> I have reviewed this exact version.</label><div class="gvc-actions">${gvCButton('Confirm review','quickConfirmProtected',a.id,'primary')}${gvCButton('Back','quickCancelProtected',a.id,'')}</div></div>`:''}
- <div class="gvc-quiet-note">Prototype: no external send, document issue or publication.</div></div>`;
+ ${confirm?`<div class="gvc-inline-panel gvc-protected"><b>Confirm protected review</b><p>Check the complete commercial terms, document and recipients. This only records a demo review.</p><label><input type="checkbox" id="protect-${h(a.id)}"> I have reviewed this exact version.</label><div class="gvc-actions">${gvCButton('Confirm review','quickConfirmProtected',a.id,'primary')}${gvCButton('Back','quickCancelProtected',a.id,'')}</div></div>`:''}</div>`;
 }
 function gvCOfferCard(x){
  const o=x.ref,d=findD(o.dealId),buyer=findP(o.buyerId),vendor=findP(o.vendorId);
- return `<div class="gvc-content"><div class="gvc-offer-money"><div><span class="gvc-mini-label">Written offer · ${h(d?.address||'Property')}</span><strong>${aud(o.amount)}</strong><small>${h(buyer?.name||'Buyer')} → ${h(vendor?.name||'Vendor')}</small></div>${tag('Time-sensitive','hot')}</div>
+ return `<div class="gvc-content"><div class="gvc-offer-money"><div><strong>${aud(o.amount)}</strong><small>${h(buyer?.name||'Buyer')} → ${h(vendor?.name||'Vendor')}</small></div>${o.deadline?tag(h(o.deadline),'hot'):''}</div>
  <div class="gvc-facts"><span><b>Deposit</b>${h(o.deposit)}</span><span><b>Finance</b>${h(o.finance)}</span><span><b>Settlement</b>${h(o.settlement)}</span><span><b>Other terms</b>${h(o.conditions)}</span></div>
- ${gvCCardRecommendation('Present the full written offer and conditions to the vendor promptly. Ask the buyer whether this is their best and final offer where appropriate. Do not accept, reject or counter without vendor instructions.')}
+ ${gvCCardRecommendation('Present it to the vendor today and ask the buyer if it is their best and final. Nothing is accepted, declined or countered without the vendor\x27s instructions.')}
  <div class="gvc-actions">${gvCButton('Present to vendor','gvPresentVendor',o.id,'primary')}${gvCButton('Call buyer','gvCallBuyer',o.id,'')}${gvCButton('Call vendor','gvCallVendor',o.id,'')}${gvCOpenMenu(x)}</div>
- ${ui.gvOfferId===o.id&&ui.gvOfferChoice?`<div class="gvc-inline-panel"><b>${h(ui.gvOfferChoice)} · agent and vendor verification required</b><p>Record and verify vendor instructions before any offer acceptance, rejection or counter.</p><div class="gvc-details">${gvOfferCard(o)}</div></div>`:''}
- <div class="gvc-quiet-note">Protected offer decisions require the vendor's verified instructions. All outcomes are simulated.</div></div>`;
+ ${ui.gvOfferId===o.id&&ui.gvOfferChoice?`<div class="gvc-inline-panel"><b>${h(ui.gvOfferChoice)} · agent and vendor verification required</b><p>Record and verify vendor instructions before any offer acceptance, rejection or counter.</p><div class="gvc-details">${gvOfferCard(o)}</div></div>`:''}</div>`;
 }
 function gvCSimpleTask(x){
  const r=x.ref,kind=x.kind,person=x.ref?.contactId?personName(x.ref.contactId):x.ref?.name||'';
  if(kind==='autoexception')return `<div class="gvc-content">${gvCCardRecommendation('The contact and property do not match. GeeVee has blocked the update, so review this specific conflict before linking any new notes.')}<div class="gvc-actions">${gvCButton('Check record link','gvCWhy',x.key,'primary')}${gvCOpenMenu(x)}</div>${ui.gvCompactWhy===x.key?gvAutoException(r):''}</div>`;
  if(kind==='appraisal'){
   const p=r,d=findD(p.dealId),checks=cmaChecks(p),ready=cmaReady(p);
-  return `<div class="gvc-content"><div class="gvc-offer-money"><div><div class="gvc-mini-label">Appraisal pack · ${h(d?.address||'Property')}</div><strong>${cmaMoney(p.low)} to ${cmaMoney(p.high)}</strong><small>3 fictional comparable candidates · ${ready?'Ready to review':'Property data needs checking'}</small></div>${tag(ready?'Ready for review':'Needs review',ready?'teal':'hot')}</div>
+  return `<div class="gvc-content"><div class="gvc-offer-money"><div><div class="gvc-mini-label">Proposed range</div><strong>${cmaMoney(p.low)} to ${cmaMoney(p.high)}</strong><small>${(p.comps||[]).length} comparables to verify</small></div>${ready?'':tag('Property data needs checking','hot')}</div>
   ${gvCCardRecommendation('GeeVee has assembled the draft appraisal. Check the proposed range and comparable evidence, then approve the finished pack for sending or printing.')}
   <div class="gvc-actions">${gvCButton('Review appraisal pack','gvCWhy',x.key,'primary')}${gvCOpenMenu(x)}</div>
-  ${ui.gvCompactWhy===x.key?`<div class="gvc-details">${cmaReviewCard(p)}</div>`:''}<div class="gvc-quiet-note">Sample sales are fictional; production release needs verified licensed comparable data.</div></div>`;
+  ${ui.gvCompactWhy===x.key?`<div class="gvc-details">${cmaReviewCard(p)}</div>`:''}</div>`;
  }
  if(kind==='rescue'){
   const d=r,sig=gvMarket(d.id);return `<div class="gvc-content"><div class="gvc-signal"><b>${sig?.days||'?'} days on market</b><span>${sig?.enquiries||0} enquiries · ${sig?.offers||0} offers</span></div>${gvCCardRecommendation(`Interest is low. Call the vendor about a pricing and marketing review. Use verified comparable sales to support the discussion, not the demo figures.`)}
@@ -1115,17 +1112,17 @@ function gvCSimpleTask(x){
   const d=findD(r.dealId);return `<div class="gvc-content"><div class="gvc-signal"><b>${r.views} views in ${r.days} days</b><span>${h(d?.address||'Property')} · ${r.saves} saves</span></div>${gvCCardRecommendation('This buyer has returned to the listing several times. Call to ask for feedback and whether they would like another inspection. Views alone do not establish intent.')}
   <div class="gvc-actions">${gvCButton('Call buyer','gvCCall',x.key,'primary')}${gvCButton('Prepare personal SMS','gvEngagedDraft',r.id,'')}${gvCOpenMenu(x)}</div></div>`;
  }
- if(kind==='meta')return `<div class="gvc-content"><div class="gvc-signal"><b>${h(r.name)}</b><span>${h(r.suburb)} · ${h(r.source)} lead</span></div>${gvCCardRecommendation(r.note||'Call to qualify this enquiry and confirm their plans.')}
+ if(kind==='meta')return `<div class="gvc-content"><div class="gvc-signal"><b>${h(r.suburb)}</b><span>${h(r.source)} lead</span></div>${gvCCardRecommendation(r.note||'Call to qualify this enquiry and confirm their plans.')}
  <div class="gvc-actions">${gvCButton('Call '+(r.name||'lead').split(' ')[0],'gvCCall',x.key,'primary')}${gvCOpenMenu(x)}</div></div>`;
  if(kind==='listing')return `<div class="gvc-content"><div class="gvc-signal"><b>${h(r.address)}, ${h(r.suburb)}</b><span>Potential commission ${aud(comm(r))} · ${h(r.stage)}</span></div>${gvCCardRecommendation((r.why||'Seller follow-up is due.')+' Suggested next step: '+(r.next||'Call to qualify the opportunity.'))}
  <div class="gvc-actions">${gvCButton('Call seller','gvCCall',x.key,'primary')}${gvCButton('Draft follow-up','dayListingDraft',r.id,'')}${gvCOpenMenu(x)}</div></div>`;
- if(kind==='buyer')return `<div class="gvc-content"><div class="gvc-signal"><b>${h(r.address)}</b><span>${r.buyerMatches} possible buyer matches</span></div>${gvCCardRecommendation('Verify each buyer’s requirements and permission to contact, then prepare a relevant property recommendation.')}
+ if(kind==='buyer')return `<div class="gvc-content"><div class="gvc-signal"><b>${r.buyerMatches} possible buyer matches</b><span>${h(r.suburb||'')}</span></div>${gvCCardRecommendation('Verify each buyer’s requirements and permission to contact, then prepare a relevant property recommendation.')}
  <div class="gvc-actions">${gvCButton('Prepare buyer message','dayBuyerDraft',r.id,'primary')}${gvCButton('View property','openDeal',r.id,'')}${gvCOpenMenu(x)}</div></div>`;
  if(kind==='task'){
   const category=r.category||'Reminder';
   const note=category==='Call'?(r.title+' · Your callback is due.'):r.title.toLowerCase().includes('comparable')?'GeeVee should prepare the appraisal, not leave the research to the agent.':(r.origin||'Previously scheduled CRM reminder.');
-  return `<div class="gvc-content"><div class="gvc-signal"><b>${h(r.title)}</b><span>${h(person||'CRM task')} · ${h(r.due)}${r.dealId?' · '+h(findD(r.dealId)?.address||''):''}</span></div>${gvCCardRecommendation(note)}
-   <div class="gvc-actions">${category==='Call'&&r.contactId?gvCButton('Call now','gvCCall',x.key,'primary'):gvCButton('Mark complete','dayTaskDone',r.id,'primary')}${gvCOpenMenu(x)}</div><div class="gvc-quiet-note">Complete a task only after the work has actually been done.</div></div>`;
+  return `<div class="gvc-content"><div class="gvc-signal"><b>${h(person||r.due)}</b><span>${person?h(r.due):''}${r.dealId?(person?' · ':'')+h(findD(r.dealId)?.address||''):''}</span></div>${gvCCardRecommendation(note)}
+   <div class="gvc-actions">${category==='Call'&&r.contactId?gvCButton('Call now','gvCCall',x.key,'primary'):gvCButton('Mark complete','dayTaskDone',r.id,'primary')}${gvCOpenMenu(x)}</div></div>`;
  }
  return `<div class="gvc-content">${gvCCardRecommendation('Review this outstanding work.')}${gvCOpenMenu(x)}</div>`;
 }
@@ -1134,12 +1131,12 @@ function gvCName(x){
  if(x.kind==='action')return x.ref.tier==='A3'?`${x.ref.type==='eSign'?'Authority':'Proposal'} · ${personName(x.ref.contactId)}`:(personName(x.ref.contactId)||x.ref.title);
  if(x.kind==='offer')return `${findD(x.ref.dealId)?.address||'Listing'} · New offer`;
  if(x.kind==='rescue')return `${x.ref.address} · Price review`;
- if(x.kind==='engaged')return `${personName(x.ref.contactId)} · High interest`;
- if(x.kind==='appraisal')return `Appraisal ready · ${findD(x.ref.dealId)?.address||'Property'}`;
+ if(x.kind==='engaged')return personName(x.ref.contactId);
+ if(x.kind==='appraisal')return findD(x.ref.dealId)?.address||'Property';
  if(x.kind==='meta')return `Call ${x.ref.name}`;
  if(x.kind==='autoexception')return `Verify ${personName(x.ref.contactId)}’s record`;
  if(x.kind==='listing')return `Follow up ${personName(x.ref.contactId)}`;
- if(x.kind==='buyer')return `Match buyers · ${x.ref.address}`;
+ if(x.kind==='buyer')return x.ref.address;
  return x.ref.title||'Next task';
 }
 function gvCSub(x){
@@ -1148,7 +1145,7 @@ function gvCSub(x){
  if(x.kind==='offer')return `${aud(x.ref.amount)} · ${personName(x.ref.buyerId)} · ${x.ref.deadline}`;
  if(x.kind==='rescue')return `${gvMarket(x.ref.id)?.days||'?'} days listed · Interest has slowed`;
  if(x.kind==='appraisal')return `GeeVee prepared · ${x.ref.comps.length} comparables to verify`;
- if(x.kind==='meta')return `${x.ref.suburb} · ${x.ref.role==='seller'?'Seller lead':'Meta lead'}`;
+ if(x.kind==='meta')return `${x.ref.suburb} · ${x.ref.source}`;
  if(x.kind==='autoexception')return 'Conflicting CRM property link · Needs a decision';
  return gvCPreview(streamDescription(x),105);
 }
