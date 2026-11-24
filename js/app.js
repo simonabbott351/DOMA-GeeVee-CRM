@@ -1532,7 +1532,6 @@ today=function(){
  <div class="gv-day-shell"><main class="gv-day-primary" id="geevee-worklist">
  <div class="gv-day-welcome"><div><span class="gv-eyebrow">GEEVEE · YOUR WORKING DAY</span><h2>Just focus on the next thing.</h2><p>Finish it, and the next task moves into place.</p></div><span class="gv-small-demo">DEMO · NO LIVE SENDS</span></div>
  ${gvCompactDiary()}
- <div class="gv-day-totals"><div><b>1</b> · Approvals & offers</div><div class="gv-day-sep"></div><div><b>2</b> · Calls & follow-ups</div><span class="gv-day-queue-note">Next ${showing.length} ready · more available</span></div>
  <div class="gv-day-items" aria-label="Today, priority order">${showing.map((x,i)=>streamActiveCard(x,i,x.key===active)).join('')||`<section class="gv-all-done"><div class="gv-big-check">✓</div><h2>All urgent work is handled.</h2><p>GeeVee will show new enquiries and eligible opportunities here as they arrive. It will not create duplicate contact attempts.</p>${action('Review opportunities','route','deals','primary')}</section>`}</div>
  ${queue.length>5?`<div class="gv-queue-bottom">${action(ui.gvShowAll?'Show just 5':'View full queue · '+queue.length,'gvExpandQueue','','sm')} <span>Continue from the top, or open another task.</span></div>`:''}
  ${ui.gvUndo?`<div class="gv-undo" role="status">Last change saved in this demo. ${action('Undo last change','gvUndo','','sm')}</div>`:''}
